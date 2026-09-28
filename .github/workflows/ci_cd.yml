@@ -3,6 +3,7 @@ name: CI/CD Pipeline
 on:
   pull_request:
     branches: [ main ]
+    types: [ opened, synchronize, reopened, closed ]
   push:
     branches: [ main ]
   workflow_dispatch:
@@ -10,6 +11,7 @@ on:
 permissions:
   contents: write
   id-token: write # Required for pub.dev automated OIDC publishing
+  pull-requests: read
 
 jobs:
   # ============================================================================
@@ -137,22 +139,27 @@ jobs:
           retention-days: 14
 
   # ============================================================================
-  # 4. Increment Package Version & Commit
+  # 4. Increment Package Version & Commit (Runs on Merge to Main)
   # ============================================================================
   version-bump:
     name: 4. Increment Version & Commit
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [unit-tests, integration-tests]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[skip ci]')
+    # Triggered when an MR is merged, or pushed directly to main without [skip ci]
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[skip ci]')) ||
+      (github.event_name == 'workflow_dispatch')
     outputs:
       new_version: ${{ steps.bump.outputs.new_version }}
       bump_type: ${{ steps.bump.outputs.bump_type }}
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repository (main branch)
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -165,14 +172,20 @@ jobs:
 
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
-          # 2. Inspect latest commit message
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          echo "Commit Message: $COMMIT_MSG"
+          # 2. Extract commit/PR title and message
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGE_TITLE="${{ github.event.pull_request.title }}"
+            CHANGE_DESC="PR #${{ github.event.pull_request.number }}: $CHANGE_TITLE"
+          else
+            CHANGE_TITLE="${{ github.event.head_commit.message }}"
+            CHANGE_DESC="$CHANGE_TITLE"
+          fi
+          echo "Change Title: $CHANGE_TITLE"
 
           # 3. Calculate new version:
-          #    feat -> major
+          #    feat / BREAKING -> major
           #    fix, chore, docs, refactor, style, test, perf -> minor
-          if echo "$COMMIT_MSG" | grep -qiE "(^feat|feat\(|BREAKING)"; then
+          if echo "$CHANGE_TITLE" | grep -qiE "(^feat|feat\(|BREAKING)"; then
             NEW_MAJOR=$((MAJOR + 1))
             NEW_VERSION="${NEW_MAJOR}.0.0"
             BUMP_TYPE="major (feat)"
@@ -191,7 +204,7 @@ jobs:
 
           # 5. Prepend release notes to CHANGELOG.md
           TODAY=$(date +'%Y-%m-%d')
-          CHANGELOG_ENTRY="## $NEW_VERSION ($TODAY)\n\n- $COMMIT_MSG\n"
+          CHANGELOG_ENTRY="## $NEW_VERSION ($TODAY)\n\n- $CHANGE_DESC\n"
           echo -e "$CHANGELOG_ENTRY\n$(cat CHANGELOG.md)" > CHANGELOG.md
 
           # 6. Configure Git user
@@ -205,14 +218,13 @@ jobs:
           git push origin main --tags
 
   # ============================================================================
-  # 5. Publish to pub.dev
+  # 5. Publish to pub.dev (Runs after Version Bump on Merge)
   # ============================================================================
   publish-pub-dev:
     name: 5. Publish to pub.dev
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [version-bump]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout Repository at Bumped Version
