@@ -98,7 +98,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     _initVoiceCapture();
 
     // Listen for direct adb/intent test control commands
-    const MethodChannel('com.example.voice_orb/control')
+    const MethodChannel('com.halooid.orbView/control')
         .setMethodCallHandler((call) async {
       stopAutoTour();
       switch (call.method) {
