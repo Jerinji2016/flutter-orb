@@ -59,12 +59,13 @@ void main() {
   });
 
   group('OrbStyle', () {
-    test('presets have valid non-null properties', () {
+    test('presets have valid non-null properties including idleTurbulence', () {
       final gemini = OrbStyle.gemini();
       expect(gemini.silentColor, isNotNull);
       expect(gemini.activeColor, isNotNull);
       expect(gemini.baseRadius, greaterThan(0.0));
       expect(gemini.glowIntensity, greaterThan(0.0));
+      expect(gemini.idleTurbulence, 0.0); // Default pristine sphere
 
       final cyberpunk = OrbStyle.cyberpunk();
       expect(cyberpunk.silentColor, const Color(0xFF990066));
@@ -73,9 +74,16 @@ void main() {
       final solar = OrbStyle.solar();
       expect(solar.silentColor, const Color(0xFFC62828));
 
-      final copy = gemini.copyWith(glowIntensity: 2.5);
+      const custom = OrbStyle(idleTurbulence: 0.25);
+      expect(custom.idleTurbulence, 0.25);
+
+      final copy = gemini.copyWith(glowIntensity: 2.5, idleTurbulence: 0.3);
       expect(copy.glowIntensity, 2.5);
+      expect(copy.idleTurbulence, 0.3);
       expect(copy.silentColor, gemini.silentColor);
+
+      expect(gemini == gemini.copyWith(), isTrue);
+      expect(gemini == copy, isFalse);
     });
   });
 }

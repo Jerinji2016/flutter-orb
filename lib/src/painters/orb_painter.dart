@@ -49,6 +49,9 @@ class OrbPainter extends CustomPainter {
     // 12: uSpeedMultiplier (float)
     shader.setFloat(12, style.speedMultiplier);
 
+    // 13: uIdleTurbulence (float)
+    shader.setFloat(13, style.idleTurbulence);
+
     final paint = Paint()..shader = shader;
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
   }

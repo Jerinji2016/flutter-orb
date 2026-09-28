@@ -167,6 +167,7 @@ controller.setSimulated(true, mode: SimulationMode.speech);
    baseRadius: 0.24,
    glowIntensity: 1.3,
    speedMultiplier: 1.2,
+   idleTurbulence: 0.0, // 0.0 for a perfect sphere, 0.2 for subtle breathing
  );
  
  // Built-in Presets

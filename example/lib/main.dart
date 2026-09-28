@@ -789,6 +789,15 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
               }),
             ),
             _buildSlider(
+              label: 'Idle Turbulence (0 = Perfect Sphere)',
+              value: _currentStyle.idleTurbulence,
+              min: 0.0,
+              max: 1.0,
+              onChanged: (v) => setState(() {
+                _currentStyle = _currentStyle.copyWith(idleTurbulence: v);
+              }),
+            ),
+            _buildSlider(
               label: 'Particle Dot Size',
               value: _currentStyle.particleSize,
               min: 0.8,
