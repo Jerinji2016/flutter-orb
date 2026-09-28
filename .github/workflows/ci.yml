@@ -112,7 +112,7 @@ jobs:
   # ============================================================================
   integration-tests:
     name: 3. Integrated Testing & Screenshots
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: [analyze-and-lint]
 
@@ -152,13 +152,15 @@ jobs:
           flutter pub get
           cd example && flutter pub get
 
-      - name: Run Flutter Drive Integration Tests (Android Emulator)
+      - name: Run Flutter Drive Integration Tests (Android Emulator with KVM)
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 33
           target: google_apis
-          arch: arm64-v8a
+          arch: x86_64
           profile: pixel_6
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
             cd example
