@@ -75,19 +75,16 @@ jobs:
           # Prepend release entry to CHANGELOG.md
           TODAY=$(date +'%Y-%m-%d')
           PR_NUMBER="${{ github.event.pull_request.number }}"
+          TEMP_CHANGELOG=$(mktemp)
           if [ -n "$PR_NUMBER" ]; then
-            ENTRY="## $NEW_VERSION ($TODAY)
-
-- $TITLE (#$PR_NUMBER)
-"
+            printf "## %s (%s)\n\n- %s (#%s)\n\n" "$NEW_VERSION" "$TODAY" "$TITLE" "$PR_NUMBER" > "$TEMP_CHANGELOG"
           else
-            ENTRY="## $NEW_VERSION ($TODAY)
-
-- $TITLE
-"
+            printf "## %s (%s)\n\n- %s\n\n" "$NEW_VERSION" "$TODAY" "$TITLE" > "$TEMP_CHANGELOG"
           fi
-          PREVIOUS_CHANGELOG=$(cat CHANGELOG.md 2>/dev/null || echo "")
-          printf "%s\n%s\n" "$ENTRY" "$PREVIOUS_CHANGELOG" > CHANGELOG.md
+          if [ -f CHANGELOG.md ]; then
+            cat CHANGELOG.md >> "$TEMP_CHANGELOG"
+          fi
+          mv "$TEMP_CHANGELOG" CHANGELOG.md
 
       # ========================================================================
       # 2. Commit Version Changes Locally (Ensures clean git state for pub validation)
