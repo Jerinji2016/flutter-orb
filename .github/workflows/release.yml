@@ -103,10 +103,18 @@ jobs:
           git commit -m "chore(release): bump version to $NEW_VERSION [skip ci]"
 
       # ========================================================================
-      # 3. Publish the build to pub.dev (Validates in clean git state)
+      # 3. Analyze, Test & Publish to pub.dev (Validates in clean git state)
       # ========================================================================
       - name: Install Package Dependencies
         run: flutter pub get
+
+      - name: Verify Code Formatting & Static Analysis
+        run: |
+          dart format --output=none --set-exit-if-changed .
+          flutter analyze --fatal-infos
+
+      - name: Run Unit Tests
+        run: flutter test
 
       - name: Publish Dry-Run Check
         run: dart pub publish --dry-run
