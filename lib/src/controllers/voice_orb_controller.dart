@@ -22,7 +22,8 @@ enum SimulationMode {
 /// exponential smoothing (EMA), and synthetic audio simulation.
 class VoiceOrbController extends ChangeNotifier
     implements ValueListenable<double> {
-  final AudioRecorder _audioRecorder;
+  AudioRecorder? _audioRecorder;
+  AudioRecorder get _recorder => _audioRecorder ??= AudioRecorder();
   StreamSubscription<Amplitude>? _amplitudeSub;
 
   /// Minimum noise floor threshold in dBFS (default: -55.0 dB).
@@ -59,7 +60,7 @@ class VoiceOrbController extends ChangeNotifier
     this.powerBoost = 1.5,
     this.pollingInterval = const Duration(milliseconds: 16),
     bool autoStart = false,
-  }) : _audioRecorder = audioRecorder ?? AudioRecorder() {
+  }) : _audioRecorder = audioRecorder {
     if (autoStart) {
       start();
     }
@@ -104,19 +105,19 @@ class VoiceOrbController extends ChangeNotifier
     }
 
     try {
-      _hasPermission = await _audioRecorder.hasPermission();
+      _hasPermission = await _recorder.hasPermission();
       if (!_hasPermission) {
         notifyListeners();
         return false;
       }
 
-      await _audioRecorder.start(
+      await _recorder.start(
         const RecordConfig(encoder: AudioEncoder.pcm16bits),
         path: '',
       );
 
       _amplitudeSub?.cancel();
-      _amplitudeSub = _audioRecorder
+      _amplitudeSub = _recorder
           .onAmplitudeChanged(pollingInterval)
           .listen(_onAmplitudeData);
 
@@ -136,8 +137,8 @@ class VoiceOrbController extends ChangeNotifier
     _amplitudeSub?.cancel();
     _amplitudeSub = null;
     try {
-      if (await _audioRecorder.isRecording()) {
-        await _audioRecorder.stop();
+      if (_audioRecorder != null && await _audioRecorder!.isRecording()) {
+        await _audioRecorder!.stop();
       }
     } catch (_) {}
     _isListening = false;
@@ -155,9 +156,11 @@ class VoiceOrbController extends ChangeNotifier
         _amplitudeSub?.cancel();
         _amplitudeSub = null;
       }
-      try {
-        _audioRecorder.stop();
-      } catch (_) {}
+      if (_audioRecorder != null) {
+        try {
+          _audioRecorder!.stop();
+        } catch (_) {}
+      }
       _isListening = true;
     } else {
       _isListening = false;
@@ -229,7 +232,7 @@ class VoiceOrbController extends ChangeNotifier
   @override
   void dispose() {
     _amplitudeSub?.cancel();
-    _audioRecorder.dispose();
+    _audioRecorder?.dispose();
     super.dispose();
   }
 }

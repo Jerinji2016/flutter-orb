@@ -3,6 +3,8 @@ import 'package:flutter_orb/flutter_orb.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('VoiceOrbController', () {
     test('normalizeDb scales decibels correctly to [0.0, 1.0]', () {
       const minDb = -55.0;
