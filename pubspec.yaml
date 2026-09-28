@@ -1,0 +1,27 @@
+name: flutter_orb
+description: "High-performance, audio-reactive 3D particle voice orb visualizer in Flutter powered by Impeller-compatible runtime shaders and real-time microphone capture."
+version: 1.0.0
+homepage: https://github.com/manesh/flutter_orb
+repository: https://github.com/manesh/flutter_orb
+issue_tracker: https://github.com/manesh/flutter_orb/issues
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  record: ^5.1.2
+
+dependency_overrides:
+  record_platform_interface: 1.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  shaders:
+    - shaders/orb.frag
