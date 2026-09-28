@@ -1,3 +1,7 @@
+## 1.0.1 (2026-09-28)
+
+- ci: configure tag publish trigger on v* and enable RELEASE_TOKEN tag pushing
+
 ## 1.0.0
 
 - Initial release of `flutter_orb`.
