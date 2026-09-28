@@ -11,6 +11,8 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: write
+  issues: write
 
 jobs:
   # ============================================================================
@@ -140,9 +142,59 @@ jobs:
           disable-animations: true
           script: cd example && flutter drive --driver=test_driver/integration_test.dart --target=integration_test/screenshot_test.dart
 
-      - name: Upload Screenshot Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Post Showcase Screenshots to Pull Request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
         with:
-          name: integration-test-screenshots
-          path: example/doc/screenshots/
-          retention-days: 14
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const repo = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const sha = context.payload.pull_request.head.sha;
+            const rawBase = `https://raw.githubusercontent.com/${repo.owner}/${repo.repo}/${sha}/example/doc/screenshots`;
+
+            const commentHeader = '### 📸 Visual Showcase (Integration Test Screenshots)';
+            const commentBody = `${commentHeader}
+
+| Google Gemini Aura | Cyberpunk Electric Pulse | Solar Flare Dynamics |
+| :---: | :---: | :---: |
+| <img src="${rawBase}/01_gemini_neon.png" width="220" alt="Gemini Neon" /> | <img src="${rawBase}/02_cyberpunk_pulse.png" width="220" alt="Cyberpunk Pulse" /> | <img src="${rawBase}/03_solar_flare.png" width="220" alt="Solar Flare" /> |
+
+| Emerald Deep Mint | Neon Rose Hot Pink | Monochrome Minimalist |
+| :---: | :---: | :---: |
+| <img src="${rawBase}/04_emerald_deep.png" width="220" alt="Emerald Deep" /> | <img src="${rawBase}/05_neon_rose.png" width="220" alt="Neon Rose" /> | <img src="${rawBase}/06_monochrome.png" width="220" alt="Monochrome" /> |
+
+| Compact Bubble Assistant | Live Shader & Audio Tuning Sheet |
+| :---: | :---: |
+| <img src="${rawBase}/07_compact_bubble.png" width="300" alt="Compact Bubble" /> | <img src="${rawBase}/08_tuning_sheet.png" width="300" alt="Tuning Sheet" /> |
+
+> *Generated automatically from Android Emulator Drive Integration Test on commit \`${sha.substring(0, 7)}\`.*`;
+
+            try {
+              const { data: comments } = await github.rest.issues.listComments({
+                ...repo,
+                issue_number,
+              });
+
+              const existingComment = comments.find(c =>
+                c.body && c.body.includes(commentHeader)
+              );
+
+              if (existingComment) {
+                await github.rest.issues.updateComment({
+                  ...repo,
+                  comment_id: existingComment.id,
+                  body: commentBody,
+                });
+                console.log(`Updated existing PR comment: ${existingComment.id}`);
+              } else {
+                await github.rest.issues.createComment({
+                  ...repo,
+                  issue_number,
+                  body: commentBody,
+                });
+                console.log('Posted new PR comment with screenshots.');
+              }
+            } catch (error) {
+              console.error('Failed to post screenshots comment to PR:', error);
+            }

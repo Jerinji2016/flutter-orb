@@ -106,11 +106,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1500));
       await binding.takeScreenshot('08_tuning_sheet');
 
-      // Close settings sheet using its top close icon
-      final closeBtn = find.byIcon(Icons.close);
-      if (closeBtn.evaluate().isNotEmpty) {
-        await tester.tap(closeBtn);
-      }
+      // Close settings sheet
+      await tester.tap(settingsBtn);
       await tester.pump(const Duration(milliseconds: 800));
 
       // Restore error handler
