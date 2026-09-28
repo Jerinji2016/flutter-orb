@@ -169,11 +169,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -no-metrics
           disable-animations: true
-          script: |
-            cd example
-            flutter drive \
-              --driver=test_driver/integration_test.dart \
-              --target=integration_test/screenshot_test.dart
+          script: cd example && flutter drive --driver=test_driver/integration_test.dart --target=integration_test/screenshot_test.dart
 
       - name: Upload Screenshot Artifacts
         uses: actions/upload-artifact@v4
