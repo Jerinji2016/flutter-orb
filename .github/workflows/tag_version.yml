@@ -1,4 +1,4 @@
-name: Release Pipeline
+name: Version Bump & Tag
 
 on:
   pull_request:
@@ -8,13 +8,12 @@ on:
 
 permissions:
   contents: write
-  id-token: write # Required for automated pub.dev OIDC publishing
 
 jobs:
-  release:
-    name: Bump Version, Publish to pub.dev & Tag Release
+  bump-and-tag:
+    name: Calculate Version, Update Files & Push Tag
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && !contains(github.event.pull_request.title, '[skip release]') && !contains(github.event.pull_request.title, '[skip ci]'))
 
     steps:
@@ -23,7 +22,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Setup Flutter SDK (Cached)
         uses: subosito/flutter-action@v2
@@ -58,11 +57,11 @@ jobs:
           if echo "$TITLE" | grep -qiE "(^feat|feat\(|BREAKING)"; then
             NEW_MINOR=$((MINOR + 1))
             NEW_VERSION="${MAJOR}.${NEW_MINOR}.0"
-            BUMP_TYPE="major/feat (0.x.0)"
+            BUMP_TYPE="feat (0.x.0)"
           else
             NEW_PATCH=$((PATCH + 1))
             NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
-            BUMP_TYPE="minor/fix/chore/doc (0.0.x)"
+            BUMP_TYPE="fix/chore/doc (0.0.x)"
           fi
 
           echo "Bumping version from $CURRENT_VERSION to $NEW_VERSION ($BUMP_TYPE)"
@@ -87,48 +86,16 @@ jobs:
           mv "$TEMP_CHANGELOG" CHANGELOG.md
 
       # ========================================================================
-      # 2. Commit Version Changes Locally (Ensures clean git state for pub validation)
+      # 2. Commit Version Changes, Create Release Tag & Push to main
       # ========================================================================
-      - name: Commit Version Changes Locally
+      - name: Commit Version Changes, Create Tag & Push
         env:
           NEW_VERSION: ${{ steps.bump.outputs.new_version }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add -A
-          if ! git diff --cached --quiet; then
-            git commit -m "chore(release): bump version to $NEW_VERSION [skip ci]"
-          fi
-          git checkout -- .
-          git clean -fd
-
-      # ========================================================================
-      # 3. Publish the build to pub.dev (Validates in clean git state)
-      # ========================================================================
-      - name: Install Package Dependencies
-        run: |
-          flutter pub get
-          git checkout -- .
-
-      - name: Publish Dry-Run Check
-        run: dart pub publish --dry-run
-
-      - name: Publish Package to pub.dev
-        run: dart pub publish --force
-
-      # ========================================================================
-      # 4. Push Commit, Tag Release & Create GitHub Release (Only after publish succeeds)
-      # ========================================================================
-      - name: Push Commit, Tag Release & Create GitHub Release
-        env:
-          NEW_VERSION: ${{ steps.bump.outputs.new_version }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
+          git add pubspec.yaml CHANGELOG.md
+          git commit -m "chore(release): bump version to $NEW_VERSION [skip ci]"
           git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
           git push origin main --tags
-
-          # Create GitHub Release
-          gh release create "v$NEW_VERSION" \
-            --title "v$NEW_VERSION" \
-            --notes "Released **v$NEW_VERSION** to pub.dev: https://pub.dev/packages/flutter_orb/versions/$NEW_VERSION"
