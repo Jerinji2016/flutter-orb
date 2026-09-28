@@ -3,8 +3,8 @@
 A high-performance, audio-reactive 3D particle voice orb visualizer in Flutter powered by Impeller-compatible GLSL runtime fragment shaders and real-time microphone amplitude capture.
 
 [![pub package](https://img.shields.io/pub/v/flutter_orb.svg)](https://pub.dev/packages/flutter_orb)
-[![CI/CD Pipeline](https://github.com/Jerinji2016/flutter-orb/actions/workflows/ci_cd.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/ci_cd.yml)
-[![Generate Screenshots](https://github.com/Jerinji2016/flutter-orb/actions/workflows/generate_screenshots.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/generate_screenshots.yml)
+[![CI Pipeline](https://github.com/Jerinji2016/flutter-orb/actions/workflows/ci.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/ci.yml)
+[![Release](https://github.com/Jerinji2016/flutter-orb/actions/workflows/release.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
 ---

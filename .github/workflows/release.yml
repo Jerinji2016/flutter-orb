@@ -1,0 +1,115 @@
+name: Release Pipeline
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write # Required for automated pub.dev OIDC publishing
+
+jobs:
+  # ============================================================================
+  # 1. Increment Version, Update Changelog, Tag & Commit
+  # ============================================================================
+  version-bump:
+    name: 1. Increment Version & Tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && !contains(github.event.pull_request.title, '[skip release]') && !contains(github.event.pull_request.title, '[skip ci]'))
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
+      bump_type: ${{ steps.bump.outputs.bump_type }}
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine Version Bump & Update Files
+        id: bump
+        run: |
+          # 1. Read current version from pubspec.yaml
+          CURRENT_VERSION=$(grep '^version:' pubspec.yaml | head -n 1 | awk '{print $2}' | tr -d ' "')
+          echo "Current Version: $CURRENT_VERSION"
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          # 2. Get PR title or fallback commit message
+          TITLE="${{ github.event.pull_request.title }}"
+          if [ -z "$TITLE" ]; then
+            TITLE=$(git log -1 --pretty=%B | head -n 1)
+          fi
+          echo "Evaluating Title: $TITLE"
+
+          # 3. Calculate new version:
+          #    feat -> major
+          #    fix, chore, docs, refactor, style, test, perf -> minor
+          if echo "$TITLE" | grep -qiE "(^feat|feat\(|BREAKING)"; then
+            NEW_MAJOR=$((MAJOR + 1))
+            NEW_VERSION="${NEW_MAJOR}.0.0"
+            BUMP_TYPE="major (feat)"
+          else
+            NEW_MINOR=$((MINOR + 1))
+            NEW_VERSION="${MAJOR}.${NEW_MINOR}.0"
+            BUMP_TYPE="minor (fix/chore/docs)"
+          fi
+
+          echo "Bumping version from $CURRENT_VERSION to $NEW_VERSION ($BUMP_TYPE)"
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "bump_type=$BUMP_TYPE" >> "$GITHUB_OUTPUT"
+
+          # 4. Update pubspec.yaml
+          sed -i "s/^version: .*/version: $NEW_VERSION/" pubspec.yaml
+
+          # 5. Prepend release notes to CHANGELOG.md
+          TODAY=$(date +'%Y-%m-%d')
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          if [ -n "$PR_NUMBER" ]; then
+            ENTRY_HEADER="## $NEW_VERSION ($TODAY)\n\n- $TITLE (#$PR_NUMBER)\n"
+          else
+            ENTRY_HEADER="## $NEW_VERSION ($TODAY)\n\n- $TITLE\n"
+          fi
+          echo -e "$ENTRY_HEADER\n$(cat CHANGELOG.md)" > CHANGELOG.md
+
+          # 6. Configure Git user
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 7. Commit, Tag, and Push to main
+          git add pubspec.yaml CHANGELOG.md
+          git commit -m "chore(release): bump version to $NEW_VERSION [skip ci]"
+          git tag "v$NEW_VERSION"
+          git push origin main --tags
+
+  # ============================================================================
+  # 2. Publish to pub.dev
+  # ============================================================================
+  publish-pub-dev:
+    name: 2. Publish to pub.dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [version-bump]
+
+    steps:
+      - name: Checkout main branch at Bumped Version
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install Package Dependencies
+        run: dart pub get
+
+      - name: Publish Dry-Run Check
+        run: dart pub publish --dry-run
+
+      - name: Publish Package to pub.dev
+        run: dart pub publish --force
