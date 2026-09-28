@@ -11,17 +11,11 @@ permissions:
   id-token: write # Required for automated pub.dev OIDC publishing
 
 jobs:
-  # ============================================================================
-  # 1. Increment Version, Update Changelog, Tag & Commit
-  # ============================================================================
-  version-bump:
-    name: 1. Increment Version & Tag
+  release:
+    name: Version Bump, Tag & Publish to pub.dev
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && !contains(github.event.pull_request.title, '[skip release]') && !contains(github.event.pull_request.title, '[skip ci]'))
-    outputs:
-      new_version: ${{ steps.bump.outputs.new_version }}
-      bump_type: ${{ steps.bump.outputs.bump_type }}
 
     steps:
       - name: Checkout main branch
@@ -30,6 +24,14 @@ jobs:
           ref: main
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Flutter SDK (Cached)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
 
       - name: Determine Version Bump & Update Files
         id: bump
@@ -61,8 +63,6 @@ jobs:
           fi
 
           echo "Bumping version from $CURRENT_VERSION to $NEW_VERSION ($BUMP_TYPE)"
-          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-          echo "bump_type=$BUMP_TYPE" >> "$GITHUB_OUTPUT"
 
           # 4. Update pubspec.yaml
           sed -i "s/^version: .*/version: $NEW_VERSION/" pubspec.yaml
@@ -87,26 +87,8 @@ jobs:
           git tag "v$NEW_VERSION"
           git push origin main --tags
 
-  # ============================================================================
-  # 2. Publish to pub.dev
-  # ============================================================================
-  publish-pub-dev:
-    name: 2. Publish to pub.dev
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [version-bump]
-
-    steps:
-      - name: Checkout main branch at Bumped Version
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Setup Dart SDK
-        uses: dart-lang/setup-dart@v1
-
       - name: Install Package Dependencies
-        run: dart pub get
+        run: flutter pub get
 
       - name: Publish Dry-Run Check
         run: dart pub publish --dry-run

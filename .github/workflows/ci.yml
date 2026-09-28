@@ -5,12 +5,16 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   # ============================================================================
-  # 1. Static Analysis & Linting
+  # 1. Gatekeeper: Static Analysis & Linting (Fast Feedback)
   # ============================================================================
   analyze-and-lint:
     name: 1. Flutter Analyze & Lints
@@ -56,62 +60,10 @@ jobs:
           flutter analyze --fatal-infos
 
   # ============================================================================
-  # 2. Unit & Widget Testing
+  # 2. Automated Test Suite: Unit, Widget & Integration Tests
   # ============================================================================
-  unit-tests:
-    name: 2. Unit & Widget Testing
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [analyze-and-lint]
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter SDK (Cached)
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
-          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
-
-      - name: Cache Pub Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            example/.dart_tool
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Install Dependencies
-        run: |
-          flutter pub get
-          cd example && flutter pub get
-
-      - name: Run Package Unit Tests
-        run: flutter test --coverage
-
-      - name: Run Example Widget Tests
-        run: |
-          cd example
-          flutter test
-
-      - name: Upload Test Coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report
-          path: coverage/lcov.info
-          if-no-files-found: ignore
-          retention-days: 7
-
-  # ============================================================================
-  # 3. Integrated Testing & Screenshot Verification
-  # ============================================================================
-  integration-tests:
-    name: 3. Integrated Testing & Screenshots
+  test-suite:
+    name: 2. Automated Test Suite (Unit, Widget & Integration)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: [analyze-and-lint]
@@ -152,6 +104,24 @@ jobs:
           flutter pub get
           cd example && flutter pub get
 
+      # --- Fast Fail-First: Unit & Widget Tests ---
+      - name: Run Package Unit Tests
+        run: flutter test --coverage
+
+      - name: Run Example Widget Tests
+        run: |
+          cd example
+          flutter test
+
+      - name: Upload Test Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # --- Hardware Acceleration & Integration Tests ---
       - name: Enable KVM Hardware Virtualization
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
