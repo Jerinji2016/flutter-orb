@@ -22,10 +22,31 @@ jobs:
     name: 1. Flutter Analyze & Lints
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      has_code_changes: ${{ steps.filter.outputs.code }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Check for Relevant Code Changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            code:
+              - 'lib/**'
+              - 'shaders/**'
+              - 'test/**'
+              - 'example/**'
+              - 'pubspec.yaml'
+              - 'pubspec.lock'
+              - 'android/**'
+              - 'ios/**'
+              - 'macos/**'
+              - 'linux/**'
+              - 'windows/**'
+              - 'web/**'
 
       - name: Setup Flutter SDK (Cached)
         uses: subosito/flutter-action@v2
@@ -63,12 +84,14 @@ jobs:
 
   # ============================================================================
   # 2. Automated Test Suite: Unit, Widget & Integration Tests
+  #    Only runs if relevant code files were modified or triggered manually
   # ============================================================================
   test-suite:
     name: 2. Automated Test Suite (Unit, Widget & Integration)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: [analyze-and-lint]
+    if: needs.analyze-and-lint.outputs.has_code_changes == 'true' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout Repository
