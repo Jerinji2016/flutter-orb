@@ -4,3 +4,8 @@
 
 # Package build files
 build/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
