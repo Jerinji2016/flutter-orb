@@ -113,13 +113,12 @@ jobs:
           cd example
           flutter test
 
-      - name: Upload Test Coverage Report
-        uses: actions/upload-artifact@v4
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          name: code-coverage-report
-          path: coverage/lcov.info
-          if-no-files-found: ignore
-          retention-days: 7
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/lcov.info
+          slug: Jerinji2016/flutter-orb
 
       # --- Hardware Acceleration & Integration Tests ---
       - name: Enable KVM Hardware Virtualization
