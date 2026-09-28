@@ -75,19 +75,16 @@ jobs:
           # Prepend release entry to CHANGELOG.md
           TODAY=$(date +'%Y-%m-%d')
           PR_NUMBER="${{ github.event.pull_request.number }}"
+          TEMP_CHANGELOG=$(mktemp)
           if [ -n "$PR_NUMBER" ]; then
-            ENTRY="## $NEW_VERSION ($TODAY)
-
-- $TITLE (#$PR_NUMBER)
-"
+            printf "## %s (%s)\n\n- %s (#%s)\n\n" "$NEW_VERSION" "$TODAY" "$TITLE" "$PR_NUMBER" > "$TEMP_CHANGELOG"
           else
-            ENTRY="## $NEW_VERSION ($TODAY)
-
-- $TITLE
-"
+            printf "## %s (%s)\n\n- %s\n\n" "$NEW_VERSION" "$TODAY" "$TITLE" > "$TEMP_CHANGELOG"
           fi
-          PREVIOUS_CHANGELOG=$(cat CHANGELOG.md 2>/dev/null || echo "")
-          printf "%s\n%s\n" "$ENTRY" "$PREVIOUS_CHANGELOG" > CHANGELOG.md
+          if [ -f CHANGELOG.md ]; then
+            cat CHANGELOG.md >> "$TEMP_CHANGELOG"
+          fi
+          mv "$TEMP_CHANGELOG" CHANGELOG.md
 
       # ========================================================================
       # 2. Commit Version Changes Locally (Ensures clean git state for pub validation)
@@ -99,14 +96,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add pubspec.yaml CHANGELOG.md
-          git commit -m "chore(release): bump version to $NEW_VERSION [skip ci]"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(release): bump version to $NEW_VERSION [skip ci]"
+          fi
+          git checkout -- .
+          git clean -fd
 
       # ========================================================================
       # 3. Publish the build to pub.dev (Validates in clean git state)
       # ========================================================================
       - name: Install Package Dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          git checkout -- .
 
       - name: Publish Dry-Run Check
         run: dart pub publish --dry-run
