@@ -1,0 +1,6 @@
+# Development config
+.dart_tool
+.vscode
+
+# Package build files
+build/
