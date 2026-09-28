@@ -96,6 +96,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add pubspec.yaml CHANGELOG.md
-          git commit -m "chore(release): bump version to $NEW_VERSION [skip ci]"
+          git commit -m "chore(release): bump version to $NEW_VERSION"
           git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+          if [ -n "${{ secrets.RELEASE_TOKEN }}" ]; then
+            git remote set-url origin "https://x-access-token:${{ secrets.RELEASE_TOKEN }}@github.com/${{ github.repository }}.git"
+          fi
           git push origin main --tags
