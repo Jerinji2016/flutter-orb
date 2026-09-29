@@ -6,6 +6,10 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write # Required for authentication using OIDC on pub.dev
+
 jobs:
   publish:
     name: Publish to pub.dev
@@ -16,6 +20,9 @@ jobs:
   deploy-web:
     name: Deploy Web to Firebase Hosting
     needs: [publish]
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_web.yml
     secrets: inherit
     with:

@@ -22,13 +22,14 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   build-and-deploy:
     name: Build Web & Deploy to Firebase
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout Repository
