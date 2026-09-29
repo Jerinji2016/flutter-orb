@@ -3,6 +3,21 @@ name: CI Pipeline
 on:
   pull_request:
     branches: [ main ]
+    paths:
+      - 'lib/**'
+      - 'shaders/**'
+      - 'test/**'
+      - 'example/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'analysis_options.yaml'
+      - 'android/**'
+      - 'ios/**'
+      - 'macos/**'
+      - 'linux/**'
+      - 'windows/**'
+      - 'web/**'
+      - '.github/workflows/ci.yml'
   workflow_dispatch:
 
 concurrency:
@@ -41,12 +56,14 @@ jobs:
               - 'example/**'
               - 'pubspec.yaml'
               - 'pubspec.lock'
+              - 'analysis_options.yaml'
               - 'android/**'
               - 'ios/**'
               - 'macos/**'
               - 'linux/**'
               - 'windows/**'
               - 'web/**'
+              - '.github/workflows/ci.yml'
 
       - name: Setup Flutter SDK (Cached)
         uses: subosito/flutter-action@v2
