@@ -12,10 +12,8 @@ dependencies:
     sdk: flutter
   flutter_orb:
     path: ../
-  record: ^5.1.2
-
-dependency_overrides:
-  record_platform_interface: 1.2.0
+  record: ^6.2.1
+  firebase_core: ^3.6.0
 
 dev_dependencies:
   flutter_test:

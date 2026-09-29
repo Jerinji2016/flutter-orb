@@ -143,7 +143,8 @@ class ParticleSpherePainter extends CustomPainter {
     int peakCount = 0;
 
     const double cameraZ = 2.8;
-    final double dynamicWaveAmp = waveAmplitude * (1.0 + audio * 1.8);
+    final double dynamicWaveAmp =
+        waveAmplitude * (style.idleTurbulence * (1.0 - audio) + audio * 2.0);
     final double waveSpeed = t * 1.2;
 
     for (int i = 0; i < total; i++) {

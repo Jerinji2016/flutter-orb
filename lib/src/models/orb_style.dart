@@ -17,6 +17,15 @@ class OrbStyle {
   /// Multiplier for the particle turbulence and wave animation speed (default: 1.0).
   final double speedMultiplier;
 
+  /// Altitude turbulence and height randomness of particles in silent/idle state.
+  ///
+  /// - `0.0`: Geometrically perfect, smooth 3D particle sphere surface.
+  /// - `0.15` - `0.3`: Subtle, gentle surface shimmer and micro-breathing.
+  /// - `1.0`: Full randomized particle altitude dispersion.
+  ///
+  /// Defaults to `0.0` (pristine sphere).
+  final double idleTurbulence;
+
   /// Number of 3D pinpoint particles rendered on the sphere surface (default: 5500).
   final int particleCount;
 
@@ -35,6 +44,7 @@ class OrbStyle {
     this.baseRadius = 0.24,
     this.glowIntensity = 1.0,
     this.speedMultiplier = 1.0,
+    this.idleTurbulence = 0.0,
     this.particleCount = 5500,
     this.particleSize = 1.8,
     this.waveFrequency = 1.6,
@@ -125,6 +135,7 @@ class OrbStyle {
     double? baseRadius,
     double? glowIntensity,
     double? speedMultiplier,
+    double? idleTurbulence,
     int? particleCount,
     double? particleSize,
     double? waveFrequency,
@@ -136,6 +147,7 @@ class OrbStyle {
       baseRadius: baseRadius ?? this.baseRadius,
       glowIntensity: glowIntensity ?? this.glowIntensity,
       speedMultiplier: speedMultiplier ?? this.speedMultiplier,
+      idleTurbulence: idleTurbulence ?? this.idleTurbulence,
       particleCount: particleCount ?? this.particleCount,
       particleSize: particleSize ?? this.particleSize,
       waveFrequency: waveFrequency ?? this.waveFrequency,
@@ -153,6 +165,7 @@ class OrbStyle {
           baseRadius == other.baseRadius &&
           glowIntensity == other.glowIntensity &&
           speedMultiplier == other.speedMultiplier &&
+          idleTurbulence == other.idleTurbulence &&
           particleCount == other.particleCount &&
           particleSize == other.particleSize &&
           waveFrequency == other.waveFrequency &&
@@ -165,6 +178,7 @@ class OrbStyle {
         baseRadius,
         glowIntensity,
         speedMultiplier,
+        idleTurbulence,
         particleCount,
         particleSize,
         waveFrequency,

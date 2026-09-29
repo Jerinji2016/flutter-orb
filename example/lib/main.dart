@@ -98,7 +98,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     _initVoiceCapture();
 
     // Listen for direct adb/intent test control commands
-    const MethodChannel('com.example.voice_orb/control')
+    const MethodChannel('com.halooid.orbView/control')
         .setMethodCallHandler((call) async {
       stopAutoTour();
       switch (call.method) {
@@ -786,6 +786,15 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
               max: 2.5,
               onChanged: (v) => setState(() {
                 _currentStyle = _currentStyle.copyWith(speedMultiplier: v);
+              }),
+            ),
+            _buildSlider(
+              label: 'Idle Turbulence (0 = Perfect Sphere)',
+              value: _currentStyle.idleTurbulence,
+              min: 0.0,
+              max: 1.0,
+              onChanged: (v) => setState(() {
+                _currentStyle = _currentStyle.copyWith(idleTurbulence: v);
               }),
             ),
             _buildSlider(

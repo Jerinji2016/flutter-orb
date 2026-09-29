@@ -5,8 +5,10 @@
 import FlutterMacOS
 import Foundation
 
-import record_darwin
+import firebase_core
+import record_macos
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  RecordPlugin.register(with: registry.registrar(forPlugin: "RecordPlugin"))
+  FLTFirebaseCorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseCorePlugin"))
+  RecordMacOsPlugin.register(with: registry.registrar(forPlugin: "RecordMacOsPlugin"))
 }

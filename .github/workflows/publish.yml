@@ -1,4 +1,4 @@
-name: Publish to pub.dev
+name: Publish to pub.dev & Deploy Web Demo
 
 on:
   push:
@@ -12,3 +12,11 @@ jobs:
     permissions:
       id-token: write # Required for authentication using OIDC
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+
+  deploy-web:
+    name: Deploy Web to Firebase Hosting
+    needs: [publish]
+    uses: ./.github/workflows/deploy_web.yml
+    secrets: inherit
+    with:
+      channel: 'live'

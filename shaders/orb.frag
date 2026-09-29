@@ -9,6 +9,7 @@ uniform vec3 uActiveColor;
 uniform float uBaseRadius;
 uniform float uGlowIntensity;
 uniform float uSpeedMultiplier;
+uniform float uIdleTurbulence;
 
 out vec4 fragColor;
 
@@ -93,9 +94,12 @@ float sampleAltitudeParticleShell(
     float angularDist = length(deltaAngle) / max(density, 1.0) * 3.14159265;
     
     // --- 2. Randomized Height from Circumference ---
+    // Effective turbulence factor transitions from uIdleTurbulence (at audio == 0) to 1.0 (at full audio)
+    float effectiveTurbulence = mix(uIdleTurbulence, 1.0, audio);
+    
     // Random base radial altitude offset + dynamic breathing + audio burst
-    float randomHeightOffset = rnd.x * heightSpread * baseR;
-    float dynamicHeight = randomHeightOffset + sin(particlePhase * 1.4 + rnd.z * 6.28) * (0.04 * baseR);
+    float randomHeightOffset = rnd.x * heightSpread * baseR * effectiveTurbulence;
+    float dynamicHeight = randomHeightOffset + sin(particlePhase * 1.4 + rnd.z * 6.28) * (0.04 * baseR * effectiveTurbulence);
     
     // Audio energy pushes particles higher off the circumference at variable rates
     float audioEjection = audio * (0.15 + rnd.z * 0.35) * baseR;
@@ -149,7 +153,7 @@ void main() {
     
     // March through the 3D altitude volume surrounding the sphere
     const int NUM_STEPS = 28;
-    float maxAltitude = baseR * 1.65 + audio * 0.35;
+    float maxAltitude = baseR * (1.0 + 0.65 * mix(uIdleTurbulence, 1.0, audio)) + audio * 0.35;
     float startRayT = 2.5 - maxAltitude * 1.3;
     float stepSize = (maxAltitude * 2.6) / float(NUM_STEPS);
     

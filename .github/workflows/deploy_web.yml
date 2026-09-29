@@ -1,0 +1,70 @@
+name: Deploy Web to Firebase Hosting
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Firebase Hosting channel to deploy to (e.g. live or a preview channel name)'
+        required: true
+        default: 'live'
+        type: string
+  workflow_call:
+    inputs:
+      channel:
+        description: 'Firebase Hosting channel'
+        required: false
+        default: 'live'
+        type: string
+
+concurrency:
+  group: firebase-hosting-${{ github.ref }}-${{ inputs.channel || 'live' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    name: Build Web & Deploy to Firebase
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK (Cached)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
+
+      - name: Cache Pub Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            example/.dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install Dependencies
+        run: |
+          flutter pub get
+          cd example && flutter pub get
+
+      - name: Build Flutter Web Release
+        run: |
+          cd example
+          flutter build web --release
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: ${{ inputs.channel || 'live' }}
