@@ -1,13 +1,24 @@
-# Flutter Orb (`flutter_orb`)
+<div align="center">
 
-A high-performance, audio-reactive 3D particle voice orb visualizer in Flutter powered by Impeller-compatible GLSL runtime fragment shaders and real-time microphone amplitude capture.
+# 🔮 Flutter Orb (`flutter_orb`)
 
-[![pub package](https://img.shields.io/pub/v/flutter_orb.svg)](https://pub.dev/packages/flutter_orb)
-[![CI Pipeline](https://github.com/Jerinji2016/flutter-orb/actions/workflows/ci.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/ci.yml)
-[![Publish to pub.dev](https://github.com/Jerinji2016/flutter-orb/actions/workflows/publish.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/publish.yml)
-[![Firebase Hosting](https://github.com/Jerinji2016/flutter-orb/actions/workflows/firebase_hosting.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/firebase_hosting.yml)
-[![codecov](https://codecov.io/gh/Jerinji2016/flutter-orb/branch/main/graph/badge.svg)](https://codecov.io/gh/Jerinji2016/flutter-orb)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+**High-performance, audio-reactive 3D particle voice orb visualizer in Flutter**  
+*Powered by Impeller-compatible GLSL runtime shaders & real-time microphone stream.*
+
+<br />
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-flutter--orb.web.app-4285F4?style=flat-square&logo=googlechrome&logoColor=white)](https://flutter-orb.web.app/)
+[![pub package](https://img.shields.io/pub/v/flutter_orb.svg?style=flat-square&color=0175C2&logo=dart&logoColor=white)](https://pub.dev/packages/flutter_orb)
+[![CI Pipeline](https://img.shields.io/github/actions/workflow/status/Jerinji2016/flutter-orb/ci.yml?branch=main&label=CI&style=flat-square&logo=github)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/ci.yml)
+[![Deploy Demo](https://img.shields.io/github/actions/workflow/status/Jerinji2016/flutter-orb/deploy_web.yml?label=Firebase%20Hosting&style=flat-square&logo=firebase)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/deploy_web.yml)
+[![Codecov](https://img.shields.io/codecov/c/github/Jerinji2016/flutter-orb/main?style=flat-square&logo=codecov&logoColor=white)](https://codecov.io/gh/Jerinji2016/flutter-orb)
+[![License: MIT](https://img.shields.io/badge/License-MIT-7952B3?style=flat-square)](LICENSE)
+
+<br />
+
+👉 **[Launch Interactive Web Demo →](https://flutter-orb.web.app/)** 👈
+
+</div>
 
 ---
 
