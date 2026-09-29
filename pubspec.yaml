@@ -22,3 +22,7 @@ dev_dependencies:
 flutter:
   shaders:
     - shaders/orb.frag
+
+false_secrets:
+  - /example/lib/firebase_options.dart
+
