@@ -2,10 +2,13 @@
 
 A high-performance, audio-reactive 3D particle voice orb visualizer in Flutter powered by Impeller-compatible GLSL runtime fragment shaders and real-time microphone amplitude capture.
 
+🌐 **Live Web Demo**: [**https://flutter-orb.web.app/**](https://flutter-orb.web.app/)
+
+[![Live Web Demo](https://img.shields.io/badge/Demo-Live%20Web%20App-00C853?style=for-the-badge&logo=firebase&logoColor=white)](https://flutter-orb.web.app/)
 [![pub package](https://img.shields.io/pub/v/flutter_orb.svg)](https://pub.dev/packages/flutter_orb)
 [![CI Pipeline](https://github.com/Jerinji2016/flutter-orb/actions/workflows/ci.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/ci.yml)
 [![Publish to pub.dev](https://github.com/Jerinji2016/flutter-orb/actions/workflows/publish.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/publish.yml)
-[![Firebase Hosting](https://github.com/Jerinji2016/flutter-orb/actions/workflows/firebase_hosting.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/firebase_hosting.yml)
+[![Firebase Hosting](https://github.com/Jerinji2016/flutter-orb/actions/workflows/deploy_web.yml/badge.svg)](https://github.com/Jerinji2016/flutter-orb/actions/workflows/deploy_web.yml)
 [![codecov](https://codecov.io/gh/Jerinji2016/flutter-orb/branch/main/graph/badge.svg)](https://codecov.io/gh/Jerinji2016/flutter-orb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
