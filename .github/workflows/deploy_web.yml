@@ -1,40 +1,32 @@
-name: Deploy to Firebase Hosting
+name: Deploy Web to Firebase Hosting
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'lib/**'
-      - 'shaders/**'
-      - 'example/**'
-      - 'firebase.json'
-      - '.firebaserc'
-      - '.github/workflows/firebase_hosting.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'lib/**'
-      - 'shaders/**'
-      - 'example/**'
-      - 'firebase.json'
-      - '.firebaserc'
-      - '.github/workflows/firebase_hosting.yml'
   workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Firebase Hosting channel to deploy to (e.g. live or a preview channel name)'
+        required: true
+        default: 'live'
+        type: string
+  workflow_call:
+    inputs:
+      channel:
+        description: 'Firebase Hosting channel'
+        required: false
+        default: 'live'
+        type: string
 
 concurrency:
-  group: firebase-hosting-${{ github.ref }}
+  group: firebase-hosting-${{ github.ref }}-${{ inputs.channel || 'live' }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  pull-requests: write
   id-token: write
 
 jobs:
   build-and-deploy:
-    name: Build Web & Deploy
+    name: Build Web & Deploy to Firebase
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -70,18 +62,9 @@ jobs:
           cd example
           flutter build web --release
 
-      - name: Deploy to Firebase Hosting Preview (Pull Request)
-        if: github.event_name == 'pull_request'
+      - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          expires: 7d
-
-      - name: Deploy to Firebase Hosting Live (Main Branch)
-        if: github.event_name != 'pull_request'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          channelId: live
+          channelId: ${{ inputs.channel || 'live' }}
