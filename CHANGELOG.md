@@ -1,3 +1,7 @@
+## 1.1.0 (2026-09-29)
+
+- Feature: idle turbulence (#7)
+
 ## 1.0.1 (2026-09-28)
 
 - ci: configure tag publish trigger on v* and enable RELEASE_TOKEN tag pushing
