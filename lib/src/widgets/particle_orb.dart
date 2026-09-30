@@ -39,8 +39,7 @@ class ParticleOrb extends StatefulWidget {
   final WidgetBuilder? loadingBuilder;
 
   /// Widget displayed if shader loading fails.
-  final Widget Function(
-      BuildContext context, Object error, StackTrace? stackTrace)? errorBuilder;
+  final Widget Function(BuildContext context, Object error, StackTrace? stackTrace)? errorBuilder;
 
   const ParticleOrb({
     super.key,
@@ -60,8 +59,7 @@ class ParticleOrb extends StatefulWidget {
   State<ParticleOrb> createState() => _ParticleOrbState();
 }
 
-class _ParticleOrbState extends State<ParticleOrb>
-    with SingleTickerProviderStateMixin {
+class _ParticleOrbState extends State<ParticleOrb> with SingleTickerProviderStateMixin {
   FragmentShader? _shader;
   Object? _loadError;
   StackTrace? _loadStackTrace;

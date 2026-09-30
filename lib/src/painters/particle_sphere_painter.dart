@@ -69,8 +69,7 @@ class ParticleSpherePainter extends CustomPainter {
       final double cosPhi = cos(phi);
       final double sinPhi = sin(phi);
 
-      final int numLongPoints =
-          max(1, (numLatitudeRings * 2.0 * cosPhi).round());
+      final int numLongPoints = max(1, (numLatitudeRings * 2.0 * cosPhi).round());
       for (int j = 0; j < numLongPoints; j++) {
         final double theta = (j / numLongPoints) * 2.0 * pi;
         final double x = cos(theta) * cosPhi;
@@ -100,8 +99,7 @@ class ParticleSpherePainter extends CustomPainter {
 
     final double centerX = size.width / 2.0;
     final double centerY = size.height / 2.0;
-    final double baseRadius =
-        min(size.width, size.height) * (style.baseRadius * 1.55);
+    final double baseRadius = min(size.width, size.height) * (style.baseRadius * 1.55);
 
     final double audio = audioEnergy.clamp(0.0, 1.0);
     final double t = time * style.speedMultiplier * 0.65;
@@ -143,8 +141,7 @@ class ParticleSpherePainter extends CustomPainter {
     int peakCount = 0;
 
     const double cameraZ = 2.8;
-    final double dynamicWaveAmp =
-        waveAmplitude * (style.idleTurbulence * (1.0 - audio) + audio * 2.0);
+    final double dynamicWaveAmp = waveAmplitude * (style.idleTurbulence * (1.0 - audio) + audio * 2.0);
     final double waveSpeed = t * 1.2;
 
     for (int i = 0; i < total; i++) {
