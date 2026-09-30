@@ -1,19 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../controllers/voice_orb_controller.dart';
-import '../models/orb_style.dart';
+import '../models/base_orb_style.dart';
+import '../models/galaxy_orb_style.dart';
+import '../models/liquid_orb_style.dart';
+import '../models/particle_orb_style.dart';
+import '../models/spectrum_orb_style.dart';
+import '../models/wireframe_orb_style.dart';
+import 'galaxy_orb.dart';
+import 'liquid_orb.dart';
 import 'particle_orb.dart';
+import 'spectrum_orb.dart';
+import 'wireframe_orb.dart';
 
-/// Drop-in, all-in-one audio-reactive voice orb widget.
+enum _OrbVisualizerType {
+  particle,
+  liquid,
+  galaxy,
+  wireframe,
+  spectrum,
+}
+
+/// Drop-in, all-in-one audio-reactive voice orb visualizer.
 ///
 /// Automatically captures microphone input (with permission handling),
-/// applies exponential smoothing, and renders the GPU particle orb visualizer.
+/// applies exponential smoothing, and renders the desired GPU orb visualizer.
 class AudioReactiveOrb extends StatefulWidget {
   /// Custom controller. If not provided, an internal [VoiceOrbController] is created.
   final VoiceOrbController? controller;
 
   /// Visual styling configuration.
-  final OrbStyle style;
+  final BaseOrbStyle style;
 
   /// Whether to automatically start capturing audio upon mounting (default: true).
   final bool autoStart;
@@ -34,17 +51,85 @@ class AudioReactiveOrb extends StatefulWidget {
   /// Loading widget while the shader or mic initializes.
   final WidgetBuilder? loadingBuilder;
 
+  final _OrbVisualizerType _type;
+
+  /// Default particle sphere audio-reactive visualizer.
   const AudioReactiveOrb({
     super.key,
     this.controller,
-    this.style = const OrbStyle(),
+    this.style = const ParticleOrbStyle(),
     this.autoStart = true,
     this.fallbackToSimulation = true,
     this.width,
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  });
+  })  : _type = _OrbVisualizerType.particle;
+
+  /// 3D wave particle sphere audio-reactive visualizer.
+  const AudioReactiveOrb.particle({
+    super.key,
+    this.controller,
+    this.style = const ParticleOrbStyle(),
+    this.autoStart = true,
+    this.fallbackToSimulation = true,
+    this.width,
+    this.height,
+    this.permissionDeniedBuilder,
+    this.loadingBuilder,
+  })  : _type = _OrbVisualizerType.particle;
+
+  /// Raymarched SDF metaballs and gooey fluid blob audio-reactive visualizer.
+  const AudioReactiveOrb.liquid({
+    super.key,
+    this.controller,
+    this.style = const LiquidOrbStyle(),
+    this.autoStart = true,
+    this.fallbackToSimulation = true,
+    this.width,
+    this.height,
+    this.permissionDeniedBuilder,
+    this.loadingBuilder,
+  })  : _type = _OrbVisualizerType.liquid;
+
+  /// Spiral disk particle system and galactic core audio-reactive visualizer.
+  const AudioReactiveOrb.galaxy({
+    super.key,
+    this.controller,
+    this.style = const GalaxyOrbStyle(),
+    this.autoStart = true,
+    this.fallbackToSimulation = true,
+    this.width,
+    this.height,
+    this.permissionDeniedBuilder,
+    this.loadingBuilder,
+  })  : _type = _OrbVisualizerType.galaxy;
+
+  /// Holographic rotating geodesic grid wireframe audio-reactive visualizer.
+  const AudioReactiveOrb.wireframe({
+    super.key,
+    this.controller,
+    this.style = const WireframeOrbStyle(),
+    this.autoStart = true,
+    this.fallbackToSimulation = true,
+    this.width,
+    this.height,
+    this.permissionDeniedBuilder,
+    this.loadingBuilder,
+  })  : _type = _OrbVisualizerType.wireframe;
+
+  /// Radial frequency bars and circular waveform ribbons audio-reactive visualizer.
+  const AudioReactiveOrb.spectrum({
+    super.key,
+    this.controller,
+    this.style = const SpectrumOrbStyle(),
+    this.autoStart = true,
+    this.fallbackToSimulation = true,
+    this.width,
+    this.height,
+    this.permissionDeniedBuilder,
+    this.loadingBuilder,
+  })  : _type = _OrbVisualizerType.spectrum;
 
   @override
   State<AudioReactiveOrb> createState() => _AudioReactiveOrbState();
@@ -119,14 +204,53 @@ class _AudioReactiveOrbState extends State<AudioReactiveOrb>
               context, () => _controller.start());
         }
 
-        return ParticleOrb(
+        return _buildVisualizer();
+      },
+    );
+  }
+
+  Widget _buildVisualizer() {
+    switch (widget._type) {
+      case _OrbVisualizerType.liquid:
+        return LiquidOrb(
           energyListenable: _controller,
-          style: widget.style,
+          style: widget.style as LiquidOrbStyle,
           width: widget.width,
           height: widget.height,
           loadingBuilder: widget.loadingBuilder,
         );
-      },
-    );
+      case _OrbVisualizerType.galaxy:
+        return GalaxyOrb(
+          energyListenable: _controller,
+          style: widget.style as GalaxyOrbStyle,
+          width: widget.width,
+          height: widget.height,
+          loadingBuilder: widget.loadingBuilder,
+        );
+      case _OrbVisualizerType.wireframe:
+        return WireframeOrb(
+          energyListenable: _controller,
+          style: widget.style as WireframeOrbStyle,
+          width: widget.width,
+          height: widget.height,
+          loadingBuilder: widget.loadingBuilder,
+        );
+      case _OrbVisualizerType.spectrum:
+        return SpectrumOrb(
+          energyListenable: _controller,
+          style: widget.style as SpectrumOrbStyle,
+          width: widget.width,
+          height: widget.height,
+          loadingBuilder: widget.loadingBuilder,
+        );
+      case _OrbVisualizerType.particle:
+        return ParticleOrb(
+          energyListenable: _controller,
+          style: widget.style as ParticleOrbStyle,
+          width: widget.width,
+          height: widget.height,
+          loadingBuilder: widget.loadingBuilder,
+        );
+    }
   }
 }

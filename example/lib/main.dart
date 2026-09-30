@@ -35,6 +35,18 @@ class VoiceOrbExampleApp extends StatelessWidget {
   }
 }
 
+enum VisualizerMode {
+  particle('Particle Sphere', Icons.grain),
+  liquid('Liquid Blob', Icons.water_drop),
+  galaxy('Spiral Galaxy', Icons.cyclone),
+  wireframe('Wireframe Holo', Icons.grid_4x4),
+  spectrum('Audio Spectrum', Icons.graphic_eq);
+
+  final String title;
+  final IconData icon;
+  const VisualizerMode(this.title, this.icon);
+}
+
 class VoiceOrbHomePage extends StatefulWidget {
   final bool autoStartTour;
 
@@ -52,12 +64,19 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
   late final VoiceOrbController _controller;
   late final AnimationController _tickerController;
 
-  // Visual Customization State
-  OrbStyle _currentStyle = OrbStyle.gemini();
+  // Selected Visualizer Mode
+  VisualizerMode _selectedMode = VisualizerMode.particle;
+
+  // Styles per mode
+  ParticleOrbStyle _particleStyle = ParticleOrbStyle.gemini();
+  LiquidOrbStyle _liquidStyle = LiquidOrbStyle.mercury();
+  GalaxyOrbStyle _galaxyStyle = GalaxyOrbStyle.andromeda();
+  WireframeOrbStyle _wireframeStyle = WireframeOrbStyle.hologram();
+  SpectrumOrbStyle _spectrumStyle = SpectrumOrbStyle.neonEqualizer();
+
   String _selectedPresetName = 'Gemini';
   final ScrollController _presetScrollController = ScrollController();
 
-  bool _isCompactView = false;
   bool _showSettings = false;
 
   // Auto UI Tour Navigation State
@@ -66,13 +85,46 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
   Timer? _tourTimer;
   String _tourDescription = '';
 
-  final Map<String, OrbStyle> _presets = {
-    'Gemini': OrbStyle.gemini(),
-    'Cyberpunk': OrbStyle.cyberpunk(),
-    'Solar Flare': OrbStyle.solar(),
-    'Emerald': OrbStyle.emerald(),
-    'Neon Rose': OrbStyle.neonRose(),
-    'Monochrome': OrbStyle.monochrome(),
+  // Preset Palettes per Mode
+  final Map<String, ParticleOrbStyle> _particlePresets = {
+    'Gemini': ParticleOrbStyle.gemini(),
+    'Cyberpunk': ParticleOrbStyle.cyberpunk(),
+    'Solar Flare': ParticleOrbStyle.solar(),
+    'Emerald': ParticleOrbStyle.emerald(),
+    'Neon Rose': ParticleOrbStyle.neonRose(),
+    'Monochrome': ParticleOrbStyle.monochrome(),
+  };
+
+  final Map<String, LiquidOrbStyle> _liquidPresets = {
+    'Mercury': LiquidOrbStyle.mercury(),
+    'Lava': LiquidOrbStyle.lava(),
+    'Plasma': LiquidOrbStyle.plasma(),
+    'Toxic Slime': LiquidOrbStyle.toxicSlime(),
+    'Amethyst': LiquidOrbStyle.amethyst(),
+  };
+
+  final Map<String, GalaxyOrbStyle> _galaxyPresets = {
+    'Andromeda': GalaxyOrbStyle.andromeda(),
+    'Supernova': GalaxyOrbStyle.supernova(),
+    'Milky Way': GalaxyOrbStyle.milkyWay(),
+    'Black Hole': GalaxyOrbStyle.blackHole(),
+    'Nebula': GalaxyOrbStyle.nebula(),
+  };
+
+  final Map<String, WireframeOrbStyle> _wireframePresets = {
+    'Hologram': WireframeOrbStyle.hologram(),
+    'Matrix': WireframeOrbStyle.matrix(),
+    'Cyber Lattice': WireframeOrbStyle.cyberLattice(),
+    'Golden Cortex': WireframeOrbStyle.goldenCortex(),
+    'Stealth Red': WireframeOrbStyle.stealthRed(),
+  };
+
+  final Map<String, SpectrumOrbStyle> _spectrumPresets = {
+    'Neon Equalizer': SpectrumOrbStyle.neonEqualizer(),
+    'Sunset Echo': SpectrumOrbStyle.sunsetEcho(),
+    'Vaporwave': SpectrumOrbStyle.vaporwave(),
+    'Radiant Green': SpectrumOrbStyle.radiantGreen(),
+    'Monochrome': SpectrumOrbStyle.monochrome(),
   };
 
   @override
@@ -94,7 +146,10 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
       })
       ..repeat();
 
-    // Attempt start microphone; fallback to simulated speech if not granted
+    // Preload all shader programs asynchronously
+    OrbShaderLoader.preloadAll();
+
+    // Attempt microphone capture; fallback to simulated speech
     _initVoiceCapture();
 
     // Listen for direct adb/intent test control commands
@@ -109,30 +164,13 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
             _executeTourStep(step);
           });
           break;
-        case 'setPreset':
-          final rawName = (call.arguments as String).trim();
-          final matchedKey = _presets.keys.firstWhere(
-            (k) =>
-                k.toLowerCase().replaceAll(' ', '') ==
-                rawName.toLowerCase().replaceAll(' ', ''),
-            orElse: () => _presets.containsKey(rawName) ? rawName : '',
+        case 'setMode':
+          final modeStr = (call.arguments as String).trim().toLowerCase();
+          final mode = VisualizerMode.values.firstWhere(
+            (m) => m.name.toLowerCase() == modeStr,
+            orElse: () => VisualizerMode.particle,
           );
-          if (matchedKey.isNotEmpty && _presets.containsKey(matchedKey)) {
-            final idx = _presets.keys.toList().indexOf(matchedKey);
-            setState(() {
-              _selectedPresetName = matchedKey;
-              _currentStyle = _presets[matchedKey]!;
-              _isCompactView = false;
-              _showSettings = false;
-            });
-            if (idx >= 0) _scrollToPreset(idx);
-          }
-          break;
-        case 'setCompact':
-          final compact = call.arguments as bool;
-          setState(() {
-            _isCompactView = compact;
-          });
+          _switchMode(mode);
           break;
         case 'setSettings':
           final show = call.arguments as bool;
@@ -157,6 +195,35 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     }
   }
 
+  void _switchMode(VisualizerMode mode) {
+    setState(() {
+      _selectedMode = mode;
+      switch (mode) {
+        case VisualizerMode.particle:
+          _selectedPresetName = _particlePresets.keys.first;
+          _particleStyle = _particlePresets.values.first;
+          break;
+        case VisualizerMode.liquid:
+          _selectedPresetName = _liquidPresets.keys.first;
+          _liquidStyle = _liquidPresets.values.first;
+          break;
+        case VisualizerMode.galaxy:
+          _selectedPresetName = _galaxyPresets.keys.first;
+          _galaxyStyle = _galaxyPresets.values.first;
+          break;
+        case VisualizerMode.wireframe:
+          _selectedPresetName = _wireframePresets.keys.first;
+          _wireframeStyle = _wireframePresets.values.first;
+          break;
+        case VisualizerMode.spectrum:
+          _selectedPresetName = _spectrumPresets.keys.first;
+          _spectrumStyle = _spectrumPresets.values.first;
+          break;
+      }
+    });
+    _scrollToPreset(0);
+  }
+
   void _scrollToPreset(int index) {
     if (!_presetScrollController.hasClients) return;
     final double targetOffset = (index * 130.0).clamp(
@@ -170,7 +237,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     );
   }
 
-  /// Starts the automatic UI tour navigation sequence.
+  /// Starts the automatic UI tour navigation sequence across all 5 visualizer widgets.
   void startAutoTour() {
     setState(() {
       _isAutoTourActive = true;
@@ -179,13 +246,13 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     _executeTourStep(_tourStep);
 
     _tourTimer?.cancel();
-    _tourTimer = Timer.periodic(const Duration(milliseconds: 3500), (timer) {
+    _tourTimer = Timer.periodic(const Duration(milliseconds: 3800), (timer) {
       if (!mounted || !_isAutoTourActive) {
         timer.cancel();
         return;
       }
       setState(() {
-        _tourStep = (_tourStep + 1) % 8;
+        _tourStep = (_tourStep + 1) % 7;
       });
       _executeTourStep(_tourStep);
     });
@@ -207,91 +274,80 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     switch (step) {
       case 0:
         setState(() {
+          _selectedMode = VisualizerMode.particle;
           _selectedPresetName = 'Gemini';
-          _currentStyle = _presets['Gemini']!;
-          _isCompactView = false;
+          _particleStyle = _particlePresets['Gemini']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.speech;
-          _tourDescription = '1/6: Google Gemini Aura';
+          _tourDescription = '1/7: Particle Orb (Gemini Aura)';
         });
         _scrollToPreset(0);
         break;
       case 1:
         setState(() {
-          _selectedPresetName = 'Cyberpunk';
-          _currentStyle = _presets['Cyberpunk']!;
-          _isCompactView = false;
+          _selectedMode = VisualizerMode.liquid;
+          _selectedPresetName = 'Mercury';
+          _liquidStyle = _liquidPresets['Mercury']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.pulse;
-          _tourDescription = '2/6: Cyberpunk Pulse';
+          _tourDescription = '2/7: Liquid Metaballs (Molten Chrome)';
         });
-        _scrollToPreset(1);
+        _scrollToPreset(0);
         break;
       case 2:
         setState(() {
-          _selectedPresetName = 'Solar Flare';
-          _currentStyle = _presets['Solar Flare']!;
-          _isCompactView = false;
+          _selectedMode = VisualizerMode.galaxy;
+          _selectedPresetName = 'Andromeda';
+          _galaxyStyle = _galaxyPresets['Andromeda']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.sine;
-          _tourDescription = '3/6: Solar Flare Dynamics';
+          _tourDescription = '3/7: Spiral Galaxy (Keplerian Disk)';
         });
-        _scrollToPreset(2);
+        _scrollToPreset(0);
         break;
       case 3:
         setState(() {
-          _selectedPresetName = 'Emerald';
-          _currentStyle = _presets['Emerald']!;
-          _isCompactView = false;
+          _selectedMode = VisualizerMode.wireframe;
+          _selectedPresetName = 'Matrix';
+          _wireframeStyle = _wireframePresets['Matrix']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.speech;
-          _tourDescription = '4/6: Emerald Deep Mint';
+          _tourDescription = '4/7: Holographic Wireframe (Matrix Nodes)';
         });
-        _scrollToPreset(3);
+        _scrollToPreset(1);
         break;
       case 4:
         setState(() {
-          _selectedPresetName = 'Neon Rose';
-          _currentStyle = _presets['Neon Rose']!;
-          _isCompactView = false;
+          _selectedMode = VisualizerMode.spectrum;
+          _selectedPresetName = 'Neon Equalizer';
+          _spectrumStyle = _spectrumPresets['Neon Equalizer']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.pulse;
-          _tourDescription = '5/6: Neon Rose Hot Pink';
+          _tourDescription = '5/7: Radial Audio Spectrum (Equalizer Ribbons)';
         });
-        _scrollToPreset(4);
+        _scrollToPreset(0);
         break;
       case 5:
         setState(() {
-          _selectedPresetName = 'Monochrome';
-          _currentStyle = _presets['Monochrome']!;
-          _isCompactView = false;
+          _selectedMode = VisualizerMode.liquid;
+          _selectedPresetName = 'Lava';
+          _liquidStyle = _liquidPresets['Lava']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.speech;
-          _tourDescription = '6/6: Monochrome Minimalist';
+          _tourDescription = '6/7: Liquid Lava (Magma Audio Dynamics)';
         });
-        _scrollToPreset(5);
+        _scrollToPreset(1);
         break;
       case 6:
         setState(() {
-          _selectedPresetName = 'Emerald';
-          _currentStyle = _presets['Emerald']!;
-          _isCompactView = true;
-          _showSettings = false;
-          _controller.simulationMode = SimulationMode.speech;
-          _tourDescription = 'Feature: Compact Assistant Bubble';
-        });
-        _scrollToPreset(3);
-        break;
-      case 7:
-        setState(() {
-          _selectedPresetName = 'Neon Rose';
-          _currentStyle = _presets['Neon Rose']!;
-          _isCompactView = false;
+          _selectedMode = VisualizerMode.wireframe;
+          _selectedPresetName = 'Hologram';
+          _wireframeStyle = _wireframePresets['Hologram']!;
           _showSettings = true;
           _controller.simulationMode = SimulationMode.pulse;
-          _tourDescription = 'Feature: Live Shader & Audio Tuning';
+          _tourDescription = '7/7: Live Shader & Audio Tuning';
         });
-        _scrollToPreset(4);
+        _scrollToPreset(0);
         break;
     }
   }
@@ -305,8 +361,40 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     super.dispose();
   }
 
+  Color get _currentSilentColor {
+    switch (_selectedMode) {
+      case VisualizerMode.particle:
+        return _particleStyle.silentColor;
+      case VisualizerMode.liquid:
+        return _liquidStyle.silentColor;
+      case VisualizerMode.galaxy:
+        return _galaxyStyle.silentColor;
+      case VisualizerMode.wireframe:
+        return _wireframeStyle.silentColor;
+      case VisualizerMode.spectrum:
+        return _spectrumStyle.silentColor;
+    }
+  }
+
+  Color get _currentActiveColor {
+    switch (_selectedMode) {
+      case VisualizerMode.particle:
+        return _particleStyle.activeColor;
+      case VisualizerMode.liquid:
+        return _liquidStyle.activeColor;
+      case VisualizerMode.galaxy:
+        return _galaxyStyle.activeColor;
+      case VisualizerMode.wireframe:
+        return _wireframeStyle.activeColor;
+      case VisualizerMode.spectrum:
+        return _spectrumStyle.activeColor;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isWideScreen = MediaQuery.sizeOf(context).width >= 850;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -316,10 +404,12 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
               duration: const Duration(milliseconds: 500),
               decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  center: Alignment.center,
+                  center: isWideScreen && _showSettings
+                      ? const Alignment(-0.25, 0.0)
+                      : Alignment.center,
                   radius: 1.2,
                   colors: [
-                    _currentStyle.silentColor.withValues(alpha: 0.18),
+                    _currentSilentColor.withValues(alpha: 0.22),
                     const Color(0xFF07080B),
                   ],
                 ),
@@ -327,31 +417,43 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
             ),
           ),
 
-          // Main Interactive Layout
+          // Main Responsive Interactive Layout
           SafeArea(
-            child: Column(
+            child: Row(
               children: [
-                _buildHeader(),
-                if (_isAutoTourActive) _buildTourBanner(),
+                // Primary Visualizer Canvas & Controls
                 Expanded(
-                  child: Center(
-                    child: _buildOrbStage(),
+                  child: Column(
+                    children: [
+                      _buildHeader(),
+                      _buildModeSelector(),
+                      if (_isAutoTourActive) _buildTourBanner(),
+                      Expanded(
+                        child: Center(
+                          child: _buildOrbStage(),
+                        ),
+                      ),
+                      _buildMetricsBar(),
+                      _buildPresetSelector(),
+                      _buildControlBar(),
+                    ],
                   ),
                 ),
-                _buildMetricsBar(),
-                _buildPresetSelector(),
-                _buildControlBar(),
+
+                // Widescreen Right Side Drawer Panel
+                if (isWideScreen && _showSettings)
+                  _buildWideSettingsDrawer(),
               ],
             ),
           ),
 
-          // Tweak Settings Bottom Sheet
-          if (_showSettings)
+          // Mobile / Small Screen Sliding Bottom Sheet Overlay
+          if (!isWideScreen && _showSettings)
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
-              child: _buildSettingsSheet(),
+              child: _buildMobileSettingsSheet(),
             ),
         ],
       ),
@@ -360,7 +462,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -400,41 +502,66 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
               ),
             ],
           ),
-          Row(
-            children: [
-              IconButton.filledTonal(
-                key: const ValueKey('btn_auto_tour'),
-                icon: Icon(_isAutoTourActive
-                    ? Icons.pause_circle_filled
-                    : Icons.auto_awesome),
-                tooltip: _isAutoTourActive
-                    ? 'Pause Auto Tour'
-                    : 'Start Auto UI Tour',
-                onPressed: () {
-                  if (_isAutoTourActive) {
-                    stopAutoTour();
-                  } else {
-                    startAutoTour();
-                  }
-                },
-              ),
-              const SizedBox(width: 8),
-              IconButton.filledTonal(
-                key: const ValueKey('btn_compact'),
-                icon: Icon(
-                    _isCompactView ? Icons.fullscreen : Icons.fullscreen_exit),
-                tooltip: _isCompactView
-                    ? 'Fullscreen Stage'
-                    : 'Compact Assistant Bubble',
-                onPressed: () {
-                  setState(() {
-                    _isCompactView = !_isCompactView;
-                  });
-                },
-              ),
-            ],
+          IconButton.filledTonal(
+            key: const ValueKey('btn_auto_tour'),
+            icon: Icon(_isAutoTourActive
+                ? Icons.pause_circle_filled
+                : Icons.auto_awesome),
+            tooltip: _isAutoTourActive
+                ? 'Pause Auto Tour'
+                : 'Start Multi-Shader Tour',
+            onPressed: () {
+              if (_isAutoTourActive) {
+                stopAutoTour();
+              } else {
+                startAutoTour();
+              }
+            },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildModeSelector() {
+    return Container(
+      height: 38,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: VisualizerMode.values.map((mode) {
+          final isSelected = _selectedMode == mode;
+          return Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: ChoiceChip(
+              avatar: Icon(
+                mode.icon,
+                size: 16,
+                color: isSelected ? _currentActiveColor : Colors.white70,
+              ),
+              label: Text(
+                mode.title,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+              selected: isSelected,
+              selectedColor: _currentActiveColor.withValues(alpha: 0.2),
+              side: BorderSide(
+                color: isSelected
+                    ? _currentActiveColor
+                    : Colors.white.withValues(alpha: 0.1),
+                width: isSelected ? 1.5 : 1.0,
+              ),
+              onSelected: (selected) {
+                if (selected) {
+                  _switchMode(mode);
+                }
+              },
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -444,10 +571,10 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: _currentStyle.activeColor.withValues(alpha: 0.15),
+        color: _currentActiveColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
         border:
-            Border.all(color: _currentStyle.activeColor.withValues(alpha: 0.4)),
+            Border.all(color: _currentActiveColor.withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -455,14 +582,14 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           Row(
             children: [
               Icon(Icons.play_circle_fill,
-                  size: 16, color: _currentStyle.activeColor),
+                  size: 16, color: _currentActiveColor),
               const SizedBox(width: 8),
               Text(
                 _tourDescription,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: _currentStyle.activeColor,
+                  color: _currentActiveColor,
                 ),
               ),
             ],
@@ -477,46 +604,42 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
   }
 
   Widget _buildOrbStage() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double fullWidth = constraints.maxWidth;
-        final double fullHeight = constraints.maxHeight;
-        final double width = _isCompactView ? 200.0 : fullWidth;
-        final double height = _isCompactView ? 200.0 : fullHeight;
-
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOutCubic,
-          width: width,
-          height: height,
-          decoration: _isCompactView
-              ? BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withValues(alpha: 0.6),
-                  border: Border.all(
-                    color: _currentStyle.activeColor.withValues(alpha: 0.4),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: _currentStyle.silentColor.withValues(alpha: 0.3),
-                      blurRadius: 30,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                )
-              : const BoxDecoration(
-                  color: Colors.transparent,
-                ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(_isCompactView ? 100 : 0),
-            child: ParticleOrb(
-              energyListenable: _controller,
-              style: _currentStyle,
-            ),
-          ),
+    Widget visualizerWidget;
+    switch (_selectedMode) {
+      case VisualizerMode.particle:
+        visualizerWidget = ParticleOrb(
+          energyListenable: _controller,
+          style: _particleStyle,
         );
-      },
+        break;
+      case VisualizerMode.liquid:
+        visualizerWidget = LiquidOrb(
+          energyListenable: _controller,
+          style: _liquidStyle,
+        );
+        break;
+      case VisualizerMode.galaxy:
+        visualizerWidget = GalaxyOrb(
+          energyListenable: _controller,
+          style: _galaxyStyle,
+        );
+        break;
+      case VisualizerMode.wireframe:
+        visualizerWidget = WireframeOrb(
+          energyListenable: _controller,
+          style: _wireframeStyle,
+        );
+        break;
+      case VisualizerMode.spectrum:
+        visualizerWidget = SpectrumOrb(
+          energyListenable: _controller,
+          style: _spectrumStyle,
+        );
+        break;
+    }
+
+    return Center(
+      child: visualizerWidget,
     );
   }
 
@@ -531,8 +654,8 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
             : (_controller.isListening ? 'LIVE MICROPHONE' : 'STANDBY');
 
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: const Color(0xFF141722).withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(16),
@@ -571,7 +694,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
@@ -579,7 +702,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
                   minHeight: 6,
                   backgroundColor: Colors.white.withValues(alpha: 0.06),
                   valueColor:
-                      AlwaysStoppedAnimation<Color>(_currentStyle.activeColor),
+                      AlwaysStoppedAnimation<Color>(_currentActiveColor),
                 ),
               ),
             ],
@@ -590,16 +713,35 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
   }
 
   Widget _buildPresetSelector() {
+    Map<String, BaseOrbStyle> currentPresets;
+    switch (_selectedMode) {
+      case VisualizerMode.particle:
+        currentPresets = _particlePresets;
+        break;
+      case VisualizerMode.liquid:
+        currentPresets = _liquidPresets;
+        break;
+      case VisualizerMode.galaxy:
+        currentPresets = _galaxyPresets;
+        break;
+      case VisualizerMode.wireframe:
+        currentPresets = _wireframePresets;
+        break;
+      case VisualizerMode.spectrum:
+        currentPresets = _spectrumPresets;
+        break;
+    }
+
     return Container(
-      height: 44,
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      height: 42,
+      margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListView(
         controller: _presetScrollController,
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: _presets.keys.map((name) {
+        children: currentPresets.keys.map((name) {
           final isSelected = _selectedPresetName == name;
-          final preset = _presets[name]!;
+          final preset = currentPresets[name]!;
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
@@ -616,10 +758,10 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
               ),
               label: Text(name),
               selected: isSelected,
-              selectedColor: _currentStyle.activeColor.withValues(alpha: 0.2),
+              selectedColor: _currentActiveColor.withValues(alpha: 0.2),
               side: BorderSide(
                 color: isSelected
-                    ? _currentStyle.activeColor
+                    ? _currentActiveColor
                     : Colors.white.withValues(alpha: 0.1),
                 width: isSelected ? 1.5 : 1.0,
               ),
@@ -627,7 +769,23 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
                 if (selected) {
                   setState(() {
                     _selectedPresetName = name;
-                    _currentStyle = preset;
+                    switch (_selectedMode) {
+                      case VisualizerMode.particle:
+                        _particleStyle = _particlePresets[name]!;
+                        break;
+                      case VisualizerMode.liquid:
+                        _liquidStyle = _liquidPresets[name]!;
+                        break;
+                      case VisualizerMode.galaxy:
+                        _galaxyStyle = _galaxyPresets[name]!;
+                        break;
+                      case VisualizerMode.wireframe:
+                        _wireframeStyle = _wireframePresets[name]!;
+                        break;
+                      case VisualizerMode.spectrum:
+                        _spectrumStyle = _spectrumPresets[name]!;
+                        break;
+                    }
                   });
                 }
               },
@@ -640,7 +798,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
 
   Widget _buildControlBar() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 14),
       child: Row(
         children: [
           Expanded(
@@ -669,11 +827,9 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
               onPressed: () {
                 setState(() {
                   if (_controller.isSimulated) {
-                    // Switch to live mic
                     _controller.setSimulated(false);
                     _controller.start();
                   } else {
-                    // Switch to simulation
                     _controller.setSimulated(true, mode: SimulationMode.speech);
                   }
                 });
@@ -728,10 +884,34 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     );
   }
 
-  Widget _buildSettingsSheet() {
+  Widget _buildWideSettingsDrawer() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+      width: 380,
+      decoration: BoxDecoration(
+        color: const Color(0xFF10131B).withValues(alpha: 0.96),
+        border: Border(
+          left: BorderSide(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 30,
+            spreadRadius: 5,
+          ),
+        ],
+      ),
+      child: _buildSettingsContent(),
+    );
+  }
+
+  Widget _buildMobileSettingsSheet() {
     return Container(
-      constraints: const BoxConstraints(maxHeight: 380),
-      padding: const EdgeInsets.all(20),
+      constraints: const BoxConstraints(maxHeight: 420),
       decoration: BoxDecoration(
         color: const Color(0xFF131620),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -743,109 +923,315 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           ),
         ],
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Shader & Audio Tuning',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 20),
-                  onPressed: () => setState(() => _showSettings = false),
-                ),
-              ],
-            ),
-            const Divider(height: 20),
-            _buildSlider(
-              label: 'Base Core Radius',
-              value: _currentStyle.baseRadius,
-              min: 0.10,
-              max: 0.35,
-              onChanged: (v) => setState(() {
-                _currentStyle = _currentStyle.copyWith(baseRadius: v);
-              }),
-            ),
-            _buildSlider(
-              label: 'Plasma Glow Intensity',
-              value: _currentStyle.glowIntensity,
-              min: 0.3,
-              max: 2.5,
-              onChanged: (v) => setState(() {
-                _currentStyle = _currentStyle.copyWith(glowIntensity: v);
-              }),
-            ),
-            _buildSlider(
-              label: 'Turbulence Speed Multiplier',
-              value: _currentStyle.speedMultiplier,
-              min: 0.2,
-              max: 2.5,
-              onChanged: (v) => setState(() {
-                _currentStyle = _currentStyle.copyWith(speedMultiplier: v);
-              }),
-            ),
-            _buildSlider(
-              label: 'Idle Turbulence (0 = Perfect Sphere)',
-              value: _currentStyle.idleTurbulence,
-              min: 0.0,
-              max: 1.0,
-              onChanged: (v) => setState(() {
-                _currentStyle = _currentStyle.copyWith(idleTurbulence: v);
-              }),
-            ),
-            _buildSlider(
-              label: 'Particle Dot Size',
-              value: _currentStyle.particleSize,
-              min: 0.8,
-              max: 3.5,
-              onChanged: (v) => setState(() {
-                _currentStyle = _currentStyle.copyWith(particleSize: v);
-              }),
-            ),
-            _buildSlider(
-              label: '3D Wave Amplitude',
-              value: _currentStyle.waveAmplitude,
-              min: 0.04,
-              max: 0.30,
-              onChanged: (v) => setState(() {
-                _currentStyle = _currentStyle.copyWith(waveAmplitude: v);
-              }),
-            ),
-            _buildSlider(
-              label: 'Decibel Floor (minDb)',
-              value: _controller.minDb,
-              min: -80.0,
-              max: -25.0,
-              onChanged: (v) => setState(() {
-                _controller.minDb = v;
-              }),
-            ),
-            _buildSlider(
-              label: 'Smoothing Factor (EMA)',
-              value: _controller.smoothingFactor,
-              min: 0.05,
-              max: 0.50,
-              onChanged: (v) => setState(() {
-                _controller.smoothingFactor = v;
-              }),
-            ),
-            _buildSlider(
-              label: 'Audio Power Boost Curve',
-              value: _controller.powerBoost,
-              min: 1.0,
-              max: 2.5,
-              onChanged: (v) => setState(() {
-                _controller.powerBoost = v;
-              }),
-            ),
-          ],
-        ),
+      child: _buildSettingsContent(),
+    );
+  }
+
+  Widget _buildSettingsContent() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${_selectedMode.title} Tuning',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 20),
+                onPressed: () => setState(() => _showSettings = false),
+              ),
+            ],
+          ),
+          const Divider(height: 16),
+          ..._buildModeSpecificSliders(),
+          const Divider(height: 16),
+          const Text(
+            'Audio Sensitivity',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white70),
+          ),
+          _buildSlider(
+            label: 'Decibel Floor (minDb)',
+            value: _controller.minDb,
+            min: -80.0,
+            max: -25.0,
+            onChanged: (v) => setState(() {
+              _controller.minDb = v;
+            }),
+          ),
+          _buildSlider(
+            label: 'Smoothing Factor (EMA)',
+            value: _controller.smoothingFactor,
+            min: 0.05,
+            max: 0.50,
+            onChanged: (v) => setState(() {
+              _controller.smoothingFactor = v;
+            }),
+          ),
+          _buildSlider(
+            label: 'Audio Power Boost',
+            value: _controller.powerBoost,
+            min: 1.0,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _controller.powerBoost = v;
+            }),
+          ),
+        ],
       ),
     );
+  }
+
+  List<Widget> _buildModeSpecificSliders() {
+    switch (_selectedMode) {
+      case VisualizerMode.particle:
+        return [
+          _buildSlider(
+            label: 'Base Core Radius',
+            value: _particleStyle.baseRadius,
+            min: 0.10,
+            max: 0.35,
+            onChanged: (v) => setState(() {
+              _particleStyle = _particleStyle.copyWith(baseRadius: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Plasma Glow Intensity',
+            value: _particleStyle.glowIntensity,
+            min: 0.3,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _particleStyle = _particleStyle.copyWith(glowIntensity: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Speed Multiplier',
+            value: _particleStyle.speedMultiplier,
+            min: 0.2,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _particleStyle = _particleStyle.copyWith(speedMultiplier: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Idle Turbulence',
+            value: _particleStyle.idleTurbulence,
+            min: 0.0,
+            max: 1.0,
+            onChanged: (v) => setState(() {
+              _particleStyle = _particleStyle.copyWith(idleTurbulence: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Particle Dot Size',
+            value: _particleStyle.particleSize,
+            min: 0.8,
+            max: 3.5,
+            onChanged: (v) => setState(() {
+              _particleStyle = _particleStyle.copyWith(particleSize: v);
+            }),
+          ),
+        ];
+
+      case VisualizerMode.liquid:
+        return [
+          _buildSlider(
+            label: 'Base Core Radius',
+            value: _liquidStyle.baseRadius,
+            min: 0.10,
+            max: 0.35,
+            onChanged: (v) => setState(() {
+              _liquidStyle = _liquidStyle.copyWith(baseRadius: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Fluid Viscosity (smin blend)',
+            value: _liquidStyle.viscosity,
+            min: 0.3,
+            max: 1.8,
+            onChanged: (v) => setState(() {
+              _liquidStyle = _liquidStyle.copyWith(viscosity: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Satellite Blob Scale',
+            value: _liquidStyle.blobScale,
+            min: 0.2,
+            max: 0.8,
+            onChanged: (v) => setState(() {
+              _liquidStyle = _liquidStyle.copyWith(blobScale: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Specular Shininess',
+            value: _liquidStyle.specularShininess,
+            min: 0.3,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _liquidStyle = _liquidStyle.copyWith(specularShininess: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Subsurface Scattering Glow',
+            value: _liquidStyle.refractiveGlow,
+            min: 0.2,
+            max: 2.0,
+            onChanged: (v) => setState(() {
+              _liquidStyle = _liquidStyle.copyWith(refractiveGlow: v);
+            }),
+          ),
+        ];
+
+      case VisualizerMode.galaxy:
+        return [
+          _buildSlider(
+            label: 'Base Core Radius',
+            value: _galaxyStyle.baseRadius,
+            min: 0.10,
+            max: 0.35,
+            onChanged: (v) => setState(() {
+              _galaxyStyle = _galaxyStyle.copyWith(baseRadius: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Spiral Arm Count',
+            value: _galaxyStyle.armCount.toDouble(),
+            min: 2.0,
+            max: 4.0,
+            onChanged: (v) => setState(() {
+              _galaxyStyle = _galaxyStyle.copyWith(armCount: v.round());
+            }),
+          ),
+          _buildSlider(
+            label: 'Spiral Tightness',
+            value: _galaxyStyle.spiralTightness,
+            min: 0.5,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _galaxyStyle = _galaxyStyle.copyWith(spiralTightness: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Core Bulge Size',
+            value: _galaxyStyle.coreBulgeSize,
+            min: 0.4,
+            max: 2.0,
+            onChanged: (v) => setState(() {
+              _galaxyStyle = _galaxyStyle.copyWith(coreBulgeSize: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Interstellar Dust Density',
+            value: _galaxyStyle.starDustDensity,
+            min: 0.2,
+            max: 2.0,
+            onChanged: (v) => setState(() {
+              _galaxyStyle = _galaxyStyle.copyWith(starDustDensity: v);
+            }),
+          ),
+        ];
+
+      case VisualizerMode.wireframe:
+        return [
+          _buildSlider(
+            label: 'Base Core Radius',
+            value: _wireframeStyle.baseRadius,
+            min: 0.10,
+            max: 0.35,
+            onChanged: (v) => setState(() {
+              _wireframeStyle = _wireframeStyle.copyWith(baseRadius: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Grid Density',
+            value: _wireframeStyle.gridDensity,
+            min: 8.0,
+            max: 32.0,
+            onChanged: (v) => setState(() {
+              _wireframeStyle = _wireframeStyle.copyWith(gridDensity: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Wireframe Line Thickness',
+            value: _wireframeStyle.lineThickness,
+            min: 0.4,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _wireframeStyle = _wireframeStyle.copyWith(lineThickness: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Vertex Node Glow Size',
+            value: _wireframeStyle.vertexGlowSize,
+            min: 0.4,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _wireframeStyle = _wireframeStyle.copyWith(vertexGlowSize: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'CRT Scanline Intensity',
+            value: _wireframeStyle.scanlineIntensity,
+            min: 0.0,
+            max: 1.0,
+            onChanged: (v) => setState(() {
+              _wireframeStyle = _wireframeStyle.copyWith(scanlineIntensity: v);
+            }),
+          ),
+        ];
+
+      case VisualizerMode.spectrum:
+        return [
+          _buildSlider(
+            label: 'Base Core Radius',
+            value: _spectrumStyle.baseRadius,
+            min: 0.10,
+            max: 0.35,
+            onChanged: (v) => setState(() {
+              _spectrumStyle = _spectrumStyle.copyWith(baseRadius: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Frequency Bar Count',
+            value: _spectrumStyle.barCount.toDouble(),
+            min: 16.0,
+            max: 96.0,
+            onChanged: (v) => setState(() {
+              _spectrumStyle = _spectrumStyle.copyWith(barCount: v.round());
+            }),
+          ),
+          _buildSlider(
+            label: 'Bar Height Scale',
+            value: _spectrumStyle.barHeightScale,
+            min: 0.4,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _spectrumStyle = _spectrumStyle.copyWith(barHeightScale: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Bar Width',
+            value: _spectrumStyle.barWidth,
+            min: 0.4,
+            max: 2.0,
+            onChanged: (v) => setState(() {
+              _spectrumStyle = _spectrumStyle.copyWith(barWidth: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Concentric Ribbon Thickness',
+            value: _spectrumStyle.ribbonThickness,
+            min: 0.4,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _spectrumStyle = _spectrumStyle.copyWith(ribbonThickness: v);
+            }),
+          ),
+        ];
+    }
   }
 
   Widget _buildSlider({
@@ -856,7 +1242,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     required ValueChanged<double> onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
           Expanded(
@@ -864,7 +1250,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
             child: Text(
               label,
               style: TextStyle(
-                  fontSize: 12, color: Colors.white.withValues(alpha: 0.8)),
+                  fontSize: 11, color: Colors.white.withValues(alpha: 0.8)),
             ),
           ),
           Expanded(
@@ -883,7 +1269,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
             ),
           ),
           SizedBox(
-            width: 42,
+            width: 38,
             child: Text(
               value.toStringAsFixed(2),
               textAlign: TextAlign.right,
