@@ -152,7 +152,7 @@ void main() {
       expect(holo.gridDensity, 18.0);
       expect(holo.lineThickness, 1.0);
       expect(holo.vertexGlowSize, 1.1);
-      expect(holo.scanlineIntensity, 0.4);
+      expect(holo.scanlineIntensity, 0.35);
 
       final matrix = WireframeOrbStyle.matrix();
       expect(matrix.gridDensity, 20.0);
@@ -200,6 +200,115 @@ void main() {
       expect(copy.barWidth, 1.4);
       expect(copy == neon, isFalse);
       expect(neon == neon.copyWith(), isTrue);
+    });
+  });
+
+  group('WaveMeshOrbStyle', () {
+    test('presets and properties are valid and copyable', () {
+      final oceanic = WaveMeshOrbStyle.oceanicBlue();
+      expect(oceanic.gridRows, 28);
+      expect(oceanic.gridColumns, 44);
+      expect(oceanic.waveAmplitude, 0.30);
+      expect(oceanic.focalDistance, 0.42);
+      expect(oceanic.showBokehCircles, isTrue);
+
+      final cyber = WaveMeshOrbStyle.cyberGrid();
+      expect(cyber.activeColor, const Color(0xFFF43F5E));
+
+      final aurora = WaveMeshOrbStyle.auroraGreen();
+      expect(aurora.activeColor, const Color(0xFF34D399));
+
+      final solar = WaveMeshOrbStyle.solarGold();
+      expect(solar.activeColor, const Color(0xFFFBBF24));
+
+      final copy = oceanic.copyWith(waveAmplitude: 0.45, depthOfField: 1.2);
+      expect(copy.waveAmplitude, 0.45);
+      expect(copy.depthOfField, 1.2);
+      expect(copy == oceanic, isFalse);
+      expect(oceanic == oceanic.copyWith(), isTrue);
+    });
+  });
+
+  group('ConstellationOrbStyle', () {
+    test('presets and properties are valid and copyable', () {
+      final deepSpace = ConstellationOrbStyle.deepSpace();
+      expect(deepSpace.particleCount, 65);
+      expect(deepSpace.maxConnectionDistance, 90.0);
+      expect(deepSpace.particleRadius, 2.8);
+      expect(deepSpace.showBoundaryGlow, isTrue);
+
+      final synapse = ConstellationOrbStyle.neuralSynapse();
+      expect(synapse.activeColor, const Color(0xFFF72585));
+
+      final matrix = ConstellationOrbStyle.matrixNodes();
+      expect(matrix.activeColor, const Color(0xFF10B981));
+
+      final amber = ConstellationOrbStyle.quantumAmber();
+      expect(amber.activeColor, const Color(0xFFF59E0B));
+
+      final copy = deepSpace.copyWith(particleCount: 80, particleSpeed: 1.5);
+      expect(copy.particleCount, 80);
+      expect(copy.particleSpeed, 1.5);
+      expect(copy == deepSpace, isFalse);
+      expect(deepSpace == deepSpace.copyWith(), isTrue);
+    });
+  });
+
+  group('SiriOrbStyle', () {
+    test('presets and properties are valid and copyable', () {
+      final classic = SiriOrbStyle.appleClassic();
+      expect(classic.chromaticIntensity, 1.0);
+      expect(classic.fluidSwirlSpeed, 1.0);
+      expect(classic.edgeBlur, 0.35);
+      expect(classic.waveDeformation, 1.0);
+      expect(classic.tertiaryColor, const Color(0xFFFF2D55));
+      expect(classic.quaternaryColor, const Color(0xFF30D158));
+
+      final aurora = SiriOrbStyle.cosmicAurora();
+      expect(aurora.activeColor, const Color(0xFF00F5D4));
+
+      final prism = SiriOrbStyle.electricPrism();
+      expect(prism.activeColor, const Color(0xFF00E5FF));
+
+      final sunset = SiriOrbStyle.sunsetGlow();
+      expect(sunset.activeColor, const Color(0xFFFF5E36));
+
+      final copy = classic.copyWith(chromaticIntensity: 1.5, edgeBlur: 0.4);
+      expect(copy.chromaticIntensity, 1.5);
+      expect(copy.edgeBlur, 0.4);
+      expect(copy == classic, isFalse);
+      expect(classic == classic.copyWith(), isTrue);
+    });
+  });
+
+  group('FlareOrbStyle', () {
+    test('presets and properties are valid and copyable', () {
+      final quantum = FlareOrbStyle.quantumBlue();
+      expect(quantum.ringThickness, 1.0);
+      expect(quantum.orbitalSpeed, 1.0);
+      expect(quantum.particleDensity, 26.0);
+      expect(quantum.dispersionAmount, 1.0);
+      expect(quantum.sonicRippleIntensity, 0.85);
+      expect(quantum.flareColor, const Color(0xFF00FFFF));
+      expect(quantum.coreHighlightColor, const Color(0xFFFFFFFF));
+
+      final solar = FlareOrbStyle.solarCorona();
+      expect(solar.activeColor, const Color(0xFFFF5500));
+
+      final cyber = FlareOrbStyle.neonCyber();
+      expect(cyber.activeColor, const Color(0xFFFF007F));
+
+      final emerald = FlareOrbStyle.emeraldPulse();
+      expect(emerald.activeColor, const Color(0xFF00F5A0));
+
+      final supernova = FlareOrbStyle.supernova();
+      expect(supernova.activeColor, const Color(0xFFBF00FF));
+
+      final copy = quantum.copyWith(ringThickness: 1.5, orbitalSpeed: 1.2);
+      expect(copy.ringThickness, 1.5);
+      expect(copy.orbitalSpeed, 1.2);
+      expect(copy == quantum, isFalse);
+      expect(quantum == quantum.copyWith(), isTrue);
     });
   });
 
@@ -276,6 +385,66 @@ void main() {
       expect(find.byType(SpectrumOrb), findsOneWidget);
     });
 
+    testWidgets('Instantiates WaveMeshOrb without crashing', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WaveMeshOrb(
+              audioEnergy: 0.5,
+              style: WaveMeshOrbStyle.oceanicBlue(),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(WaveMeshOrb), findsOneWidget);
+    });
+
+    testWidgets('Instantiates ConstellationOrb without crashing', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ConstellationOrb(
+              audioEnergy: 0.5,
+              style: ConstellationOrbStyle.deepSpace(),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ConstellationOrb), findsOneWidget);
+    });
+
+    testWidgets('Instantiates SiriOrb without crashing', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SiriOrb(
+              audioEnergy: 0.5,
+              style: SiriOrbStyle.appleClassic(),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(SiriOrb), findsOneWidget);
+    });
+
+    testWidgets('Instantiates FlareOrb without crashing', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: FlareOrb(
+              audioEnergy: 0.5,
+              style: FlareOrbStyle.quantumBlue(),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(FlareOrb), findsOneWidget);
+    });
+
     testWidgets('Instantiates AudioReactiveOrb constructors without crashing',
         (tester) async {
       await tester.pumpWidget(
@@ -288,13 +457,17 @@ void main() {
                 AudioReactiveOrb.galaxy(autoStart: false, width: 100, height: 100),
                 AudioReactiveOrb.wireframe(autoStart: false, width: 100, height: 100),
                 AudioReactiveOrb.spectrum(autoStart: false, width: 100, height: 100),
+                AudioReactiveOrb.waveMesh(autoStart: false, width: 100, height: 100),
+                AudioReactiveOrb.constellation(autoStart: false, width: 100, height: 100),
+                AudioReactiveOrb.siri(autoStart: false, width: 100, height: 100),
+                AudioReactiveOrb.flare(autoStart: false, width: 100, height: 100),
               ],
             ),
           ),
         ),
       );
 
-      expect(find.byType(AudioReactiveOrb), findsNWidgets(5));
+      expect(find.byType(AudioReactiveOrb), findsNWidgets(9));
     });
   });
 }

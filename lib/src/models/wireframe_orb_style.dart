@@ -19,29 +19,29 @@ class WireframeOrbStyle extends BaseOrbStyle {
   final double glitchIntensity;
 
   const WireframeOrbStyle({
-    super.silentColor = const Color(0xFF032B44),
+    super.silentColor = const Color(0xFFD900FF),
     super.activeColor = const Color(0xFF00E5FF),
     super.baseRadius = 0.24,
-    super.glowIntensity = 1.0,
+    super.glowIntensity = 1.1,
     super.speedMultiplier = 1.0,
     this.gridDensity = 18.0,
     this.lineThickness = 1.0,
     this.vertexGlowSize = 1.0,
-    this.scanlineIntensity = 0.4,
+    this.scanlineIntensity = 0.35,
     this.glitchIntensity = 0.5,
   });
 
-  /// Hologram: Classic sci-fi cyan and pure white holographic HUD sphere.
+  /// Hologram: Iconic dual-tone cyan & magenta undulating 3D wireframe mesh with vertex nodes.
   factory WireframeOrbStyle.hologram() => const WireframeOrbStyle(
-        silentColor: Color(0xFF0C4A6E),
-        activeColor: Color(0xFF38BDF8),
+        silentColor: Color(0xFFD900FF),
+        activeColor: Color(0xFF00E5FF),
         baseRadius: 0.24,
-        glowIntensity: 1.1,
+        glowIntensity: 1.15,
         speedMultiplier: 1.0,
         gridDensity: 18.0,
         lineThickness: 1.0,
         vertexGlowSize: 1.1,
-        scanlineIntensity: 0.4,
+        scanlineIntensity: 0.35,
       );
 
   /// Matrix: Terminal black with luminous green phosphor nodes.

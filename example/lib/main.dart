@@ -40,7 +40,11 @@ enum VisualizerMode {
   liquid('Liquid Blob', Icons.water_drop),
   galaxy('Spiral Galaxy', Icons.cyclone),
   wireframe('Wireframe Holo', Icons.grid_4x4),
-  spectrum('Audio Spectrum', Icons.graphic_eq);
+  spectrum('Audio Spectrum', Icons.graphic_eq),
+  waveMesh('Wave Mesh 2.5D', Icons.waves),
+  constellation('Constellation 2D', Icons.hub),
+  siri('Siri Glow', Icons.blur_on),
+  flare('Quantum Flare', Icons.flare);
 
   final String title;
   final IconData icon;
@@ -73,6 +77,10 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
   GalaxyOrbStyle _galaxyStyle = GalaxyOrbStyle.andromeda();
   WireframeOrbStyle _wireframeStyle = WireframeOrbStyle.hologram();
   SpectrumOrbStyle _spectrumStyle = SpectrumOrbStyle.neonEqualizer();
+  WaveMeshOrbStyle _waveMeshStyle = WaveMeshOrbStyle.oceanicBlue();
+  ConstellationOrbStyle _constellationStyle = ConstellationOrbStyle.deepSpace();
+  SiriOrbStyle _siriStyle = SiriOrbStyle.appleClassic();
+  FlareOrbStyle _flareStyle = FlareOrbStyle.quantumBlue();
 
   String _selectedPresetName = 'Gemini';
   final ScrollController _presetScrollController = ScrollController();
@@ -125,6 +133,35 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     'Vaporwave': SpectrumOrbStyle.vaporwave(),
     'Radiant Green': SpectrumOrbStyle.radiantGreen(),
     'Monochrome': SpectrumOrbStyle.monochrome(),
+  };
+
+  final Map<String, WaveMeshOrbStyle> _waveMeshPresets = {
+    'Oceanic Blue': WaveMeshOrbStyle.oceanicBlue(),
+    'Cyber Grid': WaveMeshOrbStyle.cyberGrid(),
+    'Aurora Green': WaveMeshOrbStyle.auroraGreen(),
+    'Solar Gold': WaveMeshOrbStyle.solarGold(),
+  };
+
+  final Map<String, ConstellationOrbStyle> _constellationPresets = {
+    'Deep Space': ConstellationOrbStyle.deepSpace(),
+    'Neural Synapse': ConstellationOrbStyle.neuralSynapse(),
+    'Matrix Nodes': ConstellationOrbStyle.matrixNodes(),
+    'Quantum Amber': ConstellationOrbStyle.quantumAmber(),
+  };
+
+  final Map<String, SiriOrbStyle> _siriPresets = {
+    'Apple Classic': SiriOrbStyle.appleClassic(),
+    'Cosmic Aurora': SiriOrbStyle.cosmicAurora(),
+    'Electric Prism': SiriOrbStyle.electricPrism(),
+    'Sunset Glow': SiriOrbStyle.sunsetGlow(),
+  };
+
+  final Map<String, FlareOrbStyle> _flarePresets = {
+    'Quantum Blue': FlareOrbStyle.quantumBlue(),
+    'Solar Corona': FlareOrbStyle.solarCorona(),
+    'Neon Cyber': FlareOrbStyle.neonCyber(),
+    'Emerald Pulse': FlareOrbStyle.emeraldPulse(),
+    'Supernova': FlareOrbStyle.supernova(),
   };
 
   @override
@@ -219,6 +256,22 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           _selectedPresetName = _spectrumPresets.keys.first;
           _spectrumStyle = _spectrumPresets.values.first;
           break;
+        case VisualizerMode.waveMesh:
+          _selectedPresetName = _waveMeshPresets.keys.first;
+          _waveMeshStyle = _waveMeshPresets.values.first;
+          break;
+        case VisualizerMode.constellation:
+          _selectedPresetName = _constellationPresets.keys.first;
+          _constellationStyle = _constellationPresets.values.first;
+          break;
+        case VisualizerMode.siri:
+          _selectedPresetName = _siriPresets.keys.first;
+          _siriStyle = _siriPresets.values.first;
+          break;
+        case VisualizerMode.flare:
+          _selectedPresetName = _flarePresets.keys.first;
+          _flareStyle = _flarePresets.values.first;
+          break;
       }
     });
     _scrollToPreset(0);
@@ -237,7 +290,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
     );
   }
 
-  /// Starts the automatic UI tour navigation sequence across all 5 visualizer widgets.
+  /// Starts the automatic UI tour navigation sequence across all visualizer widgets.
   void startAutoTour() {
     setState(() {
       _isAutoTourActive = true;
@@ -252,7 +305,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
         return;
       }
       setState(() {
-        _tourStep = (_tourStep + 1) % 7;
+        _tourStep = (_tourStep + 1) % 11;
       });
       _executeTourStep(_tourStep);
     });
@@ -279,7 +332,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           _particleStyle = _particlePresets['Gemini']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.speech;
-          _tourDescription = '1/7: Particle Orb (Gemini Aura)';
+          _tourDescription = '1/11: Particle Orb (Gemini Aura)';
         });
         _scrollToPreset(0);
         break;
@@ -290,7 +343,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           _liquidStyle = _liquidPresets['Mercury']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.pulse;
-          _tourDescription = '2/7: Liquid Metaballs (Molten Chrome)';
+          _tourDescription = '2/11: Liquid Metaballs (Molten Chrome)';
         });
         _scrollToPreset(0);
         break;
@@ -301,7 +354,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           _galaxyStyle = _galaxyPresets['Andromeda']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.sine;
-          _tourDescription = '3/7: Spiral Galaxy (Keplerian Disk)';
+          _tourDescription = '3/11: Spiral Galaxy (Keplerian Disk)';
         });
         _scrollToPreset(0);
         break;
@@ -312,7 +365,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           _wireframeStyle = _wireframePresets['Matrix']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.speech;
-          _tourDescription = '4/7: Holographic Wireframe (Matrix Nodes)';
+          _tourDescription = '4/11: Holographic Wireframe (Matrix Nodes)';
         });
         _scrollToPreset(1);
         break;
@@ -323,29 +376,73 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           _spectrumStyle = _spectrumPresets['Neon Equalizer']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.pulse;
-          _tourDescription = '5/7: Radial Audio Spectrum (Equalizer Ribbons)';
+          _tourDescription = '5/11: Radial Audio Spectrum (Equalizer Ribbons)';
         });
         _scrollToPreset(0);
         break;
       case 5:
+        setState(() {
+          _selectedMode = VisualizerMode.waveMesh;
+          _selectedPresetName = 'Oceanic Blue';
+          _waveMeshStyle = _waveMeshPresets['Oceanic Blue']!;
+          _showSettings = false;
+          _controller.simulationMode = SimulationMode.speech;
+          _tourDescription = '6/11: 2.5D Wave Mesh (Oceanic Blue Waves)';
+        });
+        _scrollToPreset(0);
+        break;
+      case 6:
+        setState(() {
+          _selectedMode = VisualizerMode.constellation;
+          _selectedPresetName = 'Neural Synapse';
+          _constellationStyle = _constellationPresets['Neural Synapse']!;
+          _showSettings = false;
+          _controller.simulationMode = SimulationMode.pulse;
+          _tourDescription = '7/11: 2D Constellation (Neural Synapse)';
+        });
+        _scrollToPreset(1);
+        break;
+      case 7:
+        setState(() {
+          _selectedMode = VisualizerMode.siri;
+          _selectedPresetName = 'Apple Classic';
+          _siriStyle = _siriPresets['Apple Classic']!;
+          _showSettings = false;
+          _controller.simulationMode = SimulationMode.speech;
+          _tourDescription = '8/11: Apple Siri Chromatic Fluid Glow';
+        });
+        _scrollToPreset(0);
+        break;
+      case 8:
+        setState(() {
+          _selectedMode = VisualizerMode.flare;
+          _selectedPresetName = 'Quantum Blue';
+          _flareStyle = _flarePresets['Quantum Blue']!;
+          _showSettings = false;
+          _controller.simulationMode = SimulationMode.pulse;
+          _tourDescription = '9/11: Quantum Flare (3D Orbital Arc)';
+        });
+        _scrollToPreset(0);
+        break;
+      case 9:
         setState(() {
           _selectedMode = VisualizerMode.liquid;
           _selectedPresetName = 'Lava';
           _liquidStyle = _liquidPresets['Lava']!;
           _showSettings = false;
           _controller.simulationMode = SimulationMode.speech;
-          _tourDescription = '6/7: Liquid Lava (Magma Audio Dynamics)';
+          _tourDescription = '10/11: Liquid Lava (Magma Audio Dynamics)';
         });
         _scrollToPreset(1);
         break;
-      case 6:
+      case 10:
         setState(() {
-          _selectedMode = VisualizerMode.wireframe;
-          _selectedPresetName = 'Hologram';
-          _wireframeStyle = _wireframePresets['Hologram']!;
+          _selectedMode = VisualizerMode.siri;
+          _selectedPresetName = 'Apple Classic';
+          _siriStyle = _siriPresets['Apple Classic']!;
           _showSettings = true;
           _controller.simulationMode = SimulationMode.pulse;
-          _tourDescription = '7/7: Live Shader & Audio Tuning';
+          _tourDescription = '11/11: Live Parameter & Audio Tuning';
         });
         _scrollToPreset(0);
         break;
@@ -373,6 +470,14 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
         return _wireframeStyle.silentColor;
       case VisualizerMode.spectrum:
         return _spectrumStyle.silentColor;
+      case VisualizerMode.waveMesh:
+        return _waveMeshStyle.silentColor;
+      case VisualizerMode.constellation:
+        return _constellationStyle.silentColor;
+      case VisualizerMode.siri:
+        return _siriStyle.silentColor;
+      case VisualizerMode.flare:
+        return _flareStyle.silentColor;
     }
   }
 
@@ -388,6 +493,14 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
         return _wireframeStyle.activeColor;
       case VisualizerMode.spectrum:
         return _spectrumStyle.activeColor;
+      case VisualizerMode.waveMesh:
+        return _waveMeshStyle.activeColor;
+      case VisualizerMode.constellation:
+        return _constellationStyle.activeColor;
+      case VisualizerMode.siri:
+        return _siriStyle.activeColor;
+      case VisualizerMode.flare:
+        return _flareStyle.activeColor;
     }
   }
 
@@ -636,6 +749,30 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           style: _spectrumStyle,
         );
         break;
+      case VisualizerMode.waveMesh:
+        visualizerWidget = WaveMeshOrb(
+          energyListenable: _controller,
+          style: _waveMeshStyle,
+        );
+        break;
+      case VisualizerMode.constellation:
+        visualizerWidget = ConstellationOrb(
+          energyListenable: _controller,
+          style: _constellationStyle,
+        );
+        break;
+      case VisualizerMode.siri:
+        visualizerWidget = SiriOrb(
+          energyListenable: _controller,
+          style: _siriStyle,
+        );
+        break;
+      case VisualizerMode.flare:
+        visualizerWidget = FlareOrb(
+          energyListenable: _controller,
+          style: _flareStyle,
+        );
+        break;
     }
 
     return Center(
@@ -730,6 +867,18 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
       case VisualizerMode.spectrum:
         currentPresets = _spectrumPresets;
         break;
+      case VisualizerMode.waveMesh:
+        currentPresets = _waveMeshPresets;
+        break;
+      case VisualizerMode.constellation:
+        currentPresets = _constellationPresets;
+        break;
+      case VisualizerMode.siri:
+        currentPresets = _siriPresets;
+        break;
+      case VisualizerMode.flare:
+        currentPresets = _flarePresets;
+        break;
     }
 
     return Container(
@@ -784,6 +933,18 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
                         break;
                       case VisualizerMode.spectrum:
                         _spectrumStyle = _spectrumPresets[name]!;
+                        break;
+                      case VisualizerMode.waveMesh:
+                        _waveMeshStyle = _waveMeshPresets[name]!;
+                        break;
+                      case VisualizerMode.constellation:
+                        _constellationStyle = _constellationPresets[name]!;
+                        break;
+                      case VisualizerMode.siri:
+                        _siriStyle = _siriPresets[name]!;
+                        break;
+                      case VisualizerMode.flare:
+                        _flareStyle = _flarePresets[name]!;
                         break;
                     }
                   });
@@ -1228,6 +1389,291 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
             max: 2.5,
             onChanged: (v) => setState(() {
               _spectrumStyle = _spectrumStyle.copyWith(ribbonThickness: v);
+            }),
+          ),
+        ];
+
+      case VisualizerMode.waveMesh:
+        return [
+          _buildSlider(
+            label: 'Wave Amplitude',
+            value: _waveMeshStyle.waveAmplitude,
+            min: 0.10,
+            max: 0.60,
+            onChanged: (v) => setState(() {
+              _waveMeshStyle = _waveMeshStyle.copyWith(waveAmplitude: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Wave Frequency',
+            value: _waveMeshStyle.waveFrequency,
+            min: 0.8,
+            max: 3.5,
+            onChanged: (v) => setState(() {
+              _waveMeshStyle = _waveMeshStyle.copyWith(waveFrequency: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Perspective Pitch Tilt',
+            value: _waveMeshStyle.perspectivePitch,
+            min: 0.3,
+            max: 1.2,
+            onChanged: (v) => setState(() {
+              _waveMeshStyle = _waveMeshStyle.copyWith(perspectivePitch: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Focal Bokeh Blur (DoF)',
+            value: _waveMeshStyle.depthOfField,
+            min: 0.0,
+            max: 1.5,
+            onChanged: (v) => setState(() {
+              _waveMeshStyle = _waveMeshStyle.copyWith(depthOfField: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Focal Distance Plane',
+            value: _waveMeshStyle.focalDistance,
+            min: 0.1,
+            max: 0.9,
+            onChanged: (v) => setState(() {
+              _waveMeshStyle = _waveMeshStyle.copyWith(focalDistance: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Vertex Node Glow Size',
+            value: _waveMeshStyle.nodeGlowSize,
+            min: 0.8,
+            max: 4.0,
+            onChanged: (v) => setState(() {
+              _waveMeshStyle = _waveMeshStyle.copyWith(nodeGlowSize: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Mesh Line Thickness',
+            value: _waveMeshStyle.lineThickness,
+            min: 0.4,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _waveMeshStyle = _waveMeshStyle.copyWith(lineThickness: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Line Opacity',
+            value: _waveMeshStyle.lineOpacity,
+            min: 0.2,
+            max: 1.0,
+            onChanged: (v) => setState(() {
+              _waveMeshStyle = _waveMeshStyle.copyWith(lineOpacity: v);
+            }),
+          ),
+        ];
+
+      case VisualizerMode.constellation:
+        return [
+          _buildSlider(
+            label: 'Field Interaction Radius',
+            value: _constellationStyle.interactionRadius,
+            min: 0.20,
+            max: 0.50,
+            onChanged: (v) => setState(() {
+              _constellationStyle =
+                  _constellationStyle.copyWith(interactionRadius: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Particle Node Count',
+            value: _constellationStyle.particleCount.toDouble(),
+            min: 20.0,
+            max: 120.0,
+            onChanged: (v) => setState(() {
+              _constellationStyle =
+                  _constellationStyle.copyWith(particleCount: v.round());
+            }),
+          ),
+          _buildSlider(
+            label: 'Max Connection Distance',
+            value: _constellationStyle.maxConnectionDistance,
+            min: 40.0,
+            max: 150.0,
+            onChanged: (v) => setState(() {
+              _constellationStyle =
+                  _constellationStyle.copyWith(maxConnectionDistance: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Particle Drift Speed',
+            value: _constellationStyle.particleSpeed,
+            min: 0.3,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _constellationStyle =
+                  _constellationStyle.copyWith(particleSpeed: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Particle Node Radius',
+            value: _constellationStyle.particleRadius,
+            min: 1.2,
+            max: 5.0,
+            onChanged: (v) => setState(() {
+              _constellationStyle =
+                  _constellationStyle.copyWith(particleRadius: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Connection Line Thickness',
+            value: _constellationStyle.lineThickness,
+            min: 0.4,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _constellationStyle =
+                  _constellationStyle.copyWith(lineThickness: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Connection Glow Intensity',
+            value: _constellationStyle.lineGlowIntensity,
+            min: 0.3,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _constellationStyle =
+                  _constellationStyle.copyWith(lineGlowIntensity: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Audio Impulse Force',
+            value: _constellationStyle.audioImpulseForce,
+            min: 0.5,
+            max: 3.0,
+            onChanged: (v) => setState(() {
+              _constellationStyle =
+                  _constellationStyle.copyWith(audioImpulseForce: v);
+            }),
+          ),
+        ];
+
+      case VisualizerMode.siri:
+        return [
+          _buildSlider(
+            label: 'Base Core Radius',
+            value: _siriStyle.baseRadius,
+            min: 0.10,
+            max: 0.35,
+            onChanged: (v) => setState(() {
+              _siriStyle = _siriStyle.copyWith(baseRadius: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Chromatic Dispersion',
+            value: _siriStyle.chromaticIntensity,
+            min: 0.3,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _siriStyle = _siriStyle.copyWith(chromaticIntensity: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Fluid Swirl Velocity',
+            value: _siriStyle.fluidSwirlSpeed,
+            min: 0.3,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _siriStyle = _siriStyle.copyWith(fluidSwirlSpeed: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Glow Bloom Softness',
+            value: _siriStyle.edgeBlur,
+            min: 0.1,
+            max: 0.8,
+            onChanged: (v) => setState(() {
+              _siriStyle = _siriStyle.copyWith(edgeBlur: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Fluid Ripple Deformation',
+            value: _siriStyle.waveDeformation,
+            min: 0.1,
+            max: 1.0,
+            onChanged: (v) => setState(() {
+              _siriStyle = _siriStyle.copyWith(waveDeformation: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Glow Bloom Intensity',
+            value: _siriStyle.glowIntensity,
+            min: 0.4,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _siriStyle = _siriStyle.copyWith(glowIntensity: v);
+            }),
+          ),
+        ];
+
+      case VisualizerMode.flare:
+        return [
+          _buildSlider(
+            label: 'Base Core Radius',
+            value: _flareStyle.baseRadius,
+            min: 0.10,
+            max: 0.35,
+            onChanged: (v) => setState(() {
+              _flareStyle = _flareStyle.copyWith(baseRadius: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Orbital Ring Speed',
+            value: _flareStyle.orbitalSpeed,
+            min: 0.3,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _flareStyle = _flareStyle.copyWith(orbitalSpeed: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Orbital Ring Thickness',
+            value: _flareStyle.ringThickness,
+            min: 0.4,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _flareStyle = _flareStyle.copyWith(ringThickness: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Particle Lattice Density',
+            value: _flareStyle.particleDensity,
+            min: 12.0,
+            max: 45.0,
+            onChanged: (v) => setState(() {
+              _flareStyle = _flareStyle.copyWith(particleDensity: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Wake Trail Dispersion',
+            value: _flareStyle.dispersionAmount,
+            min: 0.2,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _flareStyle = _flareStyle.copyWith(dispersionAmount: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Sonic Ripple Waves',
+            value: _flareStyle.sonicRippleIntensity,
+            min: 0.0,
+            max: 1.5,
+            onChanged: (v) => setState(() {
+              _flareStyle = _flareStyle.copyWith(sonicRippleIntensity: v);
+            }),
+          ),
+          _buildSlider(
+            label: 'Flare Glow Intensity',
+            value: _flareStyle.glowIntensity,
+            min: 0.4,
+            max: 2.5,
+            onChanged: (v) => setState(() {
+              _flareStyle = _flareStyle.copyWith(glowIntensity: v);
             }),
           ),
         ];

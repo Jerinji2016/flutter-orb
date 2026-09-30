@@ -46,6 +46,8 @@ void main() {
     late ui.FragmentProgram galaxyProgram;
     late ui.FragmentProgram wireframeProgram;
     late ui.FragmentProgram spectrumProgram;
+    late ui.FragmentProgram siriProgram;
+    late ui.FragmentProgram flareProgram;
 
     setUpAll(() async {
       // Load real system TrueType font for crystal-clear text in test snapshots
@@ -76,6 +78,10 @@ void main() {
           await OrbShaderLoader.loadPath(OrbShaderLoader.wireframeShaderPath);
       spectrumProgram =
           await OrbShaderLoader.loadPath(OrbShaderLoader.spectrumShaderPath);
+      siriProgram =
+          await OrbShaderLoader.loadPath(OrbShaderLoader.siriShaderPath);
+      flareProgram =
+          await OrbShaderLoader.loadPath(OrbShaderLoader.flareShaderPath);
     });
 
     test('01_particle_gemini', () async {
@@ -192,6 +198,52 @@ void main() {
         _TuningPanelPainter(),
         width: 300,
         height: 300,
+      );
+    });
+
+    test('11_wave_mesh_oceanic', () async {
+      await renderPainterToFile(
+        '11_wave_mesh_oceanic',
+        WaveMeshPainter(
+          time: 1.8,
+          audioEnergy: 0.65,
+          style: WaveMeshOrbStyle.oceanicBlue(),
+        ),
+      );
+    });
+
+    test('12_constellation_neural', () async {
+      await renderPainterToFile(
+        '12_constellation_neural',
+        ConstellationPainter(
+          time: 2.2,
+          audioEnergy: 0.70,
+          style: ConstellationOrbStyle.neuralSynapse(),
+        ),
+      );
+    });
+
+    test('13_siri_glow_apple', () async {
+      await renderPainterToFile(
+        '13_siri_glow_apple',
+        SiriOrbPainter(
+          shader: siriProgram.fragmentShader(),
+          time: 2.0,
+          audioEnergy: 0.65,
+          style: SiriOrbStyle.appleClassic(),
+        ),
+      );
+    });
+
+    test('14_flare_quantum_blue', () async {
+      await renderPainterToFile(
+        '14_flare_quantum_blue',
+        FlareOrbPainter(
+          shader: flareProgram.fragmentShader(),
+          time: 2.2,
+          audioEnergy: 0.65,
+          style: FlareOrbStyle.quantumBlue(),
+        ),
       );
     });
   });

@@ -2,7 +2,7 @@
 
 # 🔮 Flutter Orb (`flutter_orb`)
 
-**High-performance, audio-reactive 3D particle voice orbs, liquid metaballs, galaxies, wireframes & spectrum visualizers in Flutter**  
+**High-performance, audio-reactive 3D particle voice orbs, Apple Siri chromatic glow, 2.5D wave meshes, dynamic constellations, liquid metaballs, galaxies, wireframes & spectrum visualizers in Flutter**  
 *Powered by Impeller-compatible GLSL runtime shaders & real-time microphone stream.*
 
 <br />
@@ -26,20 +26,20 @@
 
 <div align="center">
 
+### ⚡ Quantum Flare & Apple Siri Glow
+| Quantum Flare (`FlareOrb`) | Apple Siri Glow (`SiriOrb`) | 2.5D Wave Mesh (`WaveMeshOrb`) | 2D Constellation (`ConstellationOrb`) |
+| :---: | :---: | :---: | :---: |
+| <img src="example/doc/screenshots/14_flare_quantum_blue.png" width="180" alt="Quantum Flare Orb" /> | <img src="example/doc/screenshots/13_siri_glow_apple.png" width="180" alt="Apple Siri Glow" /> | <img src="example/doc/screenshots/11_wave_mesh_oceanic.png" width="180" alt="Wave Mesh Oceanic" /> | <img src="example/doc/screenshots/12_constellation_neural.png" width="180" alt="Constellation Neural" /> |
+
 ### 🪐 Spiral Galaxies & Holographic Wireframes
 | Andromeda Core (`GalaxyOrb`) | Supernova Blast (`GalaxyOrb`) | Hologram HUD (`WireframeOrb`) | Matrix Lattice (`WireframeOrb`) |
 | :---: | :---: | :---: | :---: |
 | <img src="example/doc/screenshots/04_galaxy_andromeda.png" width="180" alt="Galaxy Andromeda" /> | <img src="example/doc/screenshots/05_galaxy_supernova.png" width="180" alt="Galaxy Supernova" /> | <img src="example/doc/screenshots/06_wireframe_hologram.png" width="180" alt="Wireframe Hologram" /> | <img src="example/doc/screenshots/07_wireframe_matrix.png" width="180" alt="Wireframe Matrix" /> |
 
-### 💧 Liquid Metaballs & 3D Wave Particle Spheres
-| Mercury Chrome (`LiquidOrb`) | Magma Lava (`LiquidOrb`) | Gemini Aura (`ParticleOrb`) | Live Parameter Tuner |
+### 💧 Liquid Metaballs, Spectrum & Live Parameter Tuning
+| Mercury Chrome (`LiquidOrb`) | Magma Lava (`LiquidOrb`) | Neon Equalizer (`SpectrumOrb`) | Live Parameter Tuner |
 | :---: | :---: | :---: | :---: |
-| <img src="example/doc/screenshots/02_liquid_mercury.png" width="180" alt="Liquid Mercury" /> | <img src="example/doc/screenshots/03_liquid_lava.png" width="180" alt="Liquid Lava" /> | <img src="example/doc/screenshots/01_particle_gemini.png" width="180" alt="Particle Gemini" /> | <img src="example/doc/screenshots/10_tuning_panel.png" width="180" alt="Live Parameter Tuner" /> |
-
-### 📊 Radial Audio Spectrum Equalizers
-| Neon Equalizer (`SpectrumOrb`) | Sunset Echo (`SpectrumOrb`) |
-| :---: | :---: |
-| <img src="example/doc/screenshots/08_spectrum_neon.png" width="220" alt="Spectrum Neon" /> | <img src="example/doc/screenshots/09_spectrum_sunset.png" width="220" alt="Spectrum Sunset" /> |
+| <img src="example/doc/screenshots/02_liquid_mercury.png" width="180" alt="Liquid Mercury" /> | <img src="example/doc/screenshots/03_liquid_lava.png" width="180" alt="Liquid Lava" /> | <img src="example/doc/screenshots/08_spectrum_neon.png" width="180" alt="Spectrum Neon" /> | <img src="example/doc/screenshots/10_tuning_panel.png" width="180" alt="Live Parameter Tuner" /> |
 
 </div>
 
@@ -47,17 +47,21 @@
 
 ## ✨ Features
 
-- ⚡ **5 Dedicated GPU Visualizer Widgets**:
+- ⚡ **9 Dedicated Visualizer Widgets**:
+  - `FlareOrb`: Quantum Flare 3D holographic sphere shell with sweeping orbital plasma ring, incandescent white-hot flare nucleus, trailing particle wake dispersion, and concentric acoustic ripples (`shaders/flare_orb.frag`).
+  - `SiriOrb`: Apple Siri / Apple Intelligence chromatic fluid glow with multi-pole rotating color vortices, spectral dispersion, and glowing core (`shaders/siri_orb.frag`).
+  - `WaveMeshOrb`: 2.5D perspective undulating wave landscape with focal depth-of-field blur, distant bokeh circles, and glowing lattice nodes.
+  - `ConstellationOrb`: 2D top-view dynamic particle constellation network with smooth quadratic distance-based line fadeout and audio surges.
   - `ParticleOrb`: Procedural 3D wave particle sphere with surface noise waves (`shaders/orb.frag`).
   - `LiquidOrb`: Raymarched Signed Distance Field (SDF) metaballs & gooey fluid blob with Blinn-Phong specular highlights and subsurface scattering (`shaders/liquid_orb.frag`).
   - `GalaxyOrb`: Volumetric spiral disk particle system with differential Keplerian rotation and galactic core flares (`shaders/galaxy_orb.frag`).
   - `WireframeOrb`: Holographic rotating geodesic lattice with glowing vertex nodes and CRT scanlines (`shaders/wireframe_orb.frag`).
   - `SpectrumOrb`: Radial frequency equalizer bars and concentric oscillating waveform ribbons (`shaders/audio_spectrum.frag`).
-- 🎙️ **Live Audio Reactive**: Seamlessly streams decibel amplitude from the microphone via `record` and maps to GPU uniforms in real-time.
+- 🎙️ **Live Audio Reactive**: Seamlessly streams decibel amplitude from the microphone via `record` and maps to visualizer dynamics in real-time.
 - 🌊 **Liquid-Smooth Dynamics**: Built-in Exponential Moving Average (EMA) audio smoothing, configurable noise floors, peak ceilings, and non-linear power curves.
-- 🎨 **Type-Safe Specialized Styles & Presets**: Dedicated style models (`ParticleOrbStyle`, `LiquidOrbStyle`, `GalaxyOrbStyle`, `WireframeOrbStyle`, `SpectrumOrbStyle`) with rich presets for each visualizer.
+- 🎨 **Type-Safe Specialized Styles & Presets**: Dedicated style models (`FlareOrbStyle`, `SiriOrbStyle`, `WaveMeshOrbStyle`, `ConstellationOrbStyle`, `ParticleOrbStyle`, `LiquidOrbStyle`, `GalaxyOrbStyle`, `WireframeOrbStyle`, `SpectrumOrbStyle`) with rich presets for each visualizer.
 - 📱 **All-in-One & Standalone Modes**:
-  - `AudioReactiveOrb`: Drop-in widget with automatic mic capture, lifecycle handling, permissions, and named constructors (`.particle()`, `.liquid()`, `.galaxy()`, `.wireframe()`, `.spectrum()`).
+  - `AudioReactiveOrb`: Drop-in widget with automatic mic capture, lifecycle handling, permissions, and named constructors (`.flare()`, `.siri()`, `.waveMesh()`, `.constellation()`, `.particle()`, `.liquid()`, `.galaxy()`, `.wireframe()`, `.spectrum()`).
 - 🧪 **Offline / Simulator Mode**: Built-in conversational speech, pulse, and sinusoidal wave simulation when microphone is unavailable.
 
 ---
@@ -70,7 +74,7 @@ Add `flutter_orb` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_orb: ^1.1.0
+  flutter_orb: ^1.2.0
 ```
 
 ### 2. Platform Permissions
@@ -107,35 +111,63 @@ In `macos/Runner/DebugProfile.entitlements` and `Release.entitlements`:
 Drop-in microphone visualizers with automatic capture, smoothing, and permission handling:
 
 ```dart
-// 1. Particle Sphere
+// 1. Quantum Flare 3D Holographic Particle Orb
+AudioReactiveOrb.flare(
+  style: FlareOrbStyle.quantumBlue(),
+  width: 300,
+  height: 300,
+)
+
+// 2. Apple Siri Chromatic Fluid Glow
+AudioReactiveOrb.siri(
+  style: SiriOrbStyle.appleClassic(),
+  width: 300,
+  height: 300,
+)
+
+// 3. 2.5D Perspective Wave Mesh with Focal Bokeh Blur
+AudioReactiveOrb.waveMesh(
+  style: WaveMeshOrbStyle.oceanicBlue(),
+  width: 350,
+  height: 350,
+)
+
+// 4. 2D Dynamic Proximity Constellation Network
+AudioReactiveOrb.constellation(
+  style: ConstellationOrbStyle.neuralSynapse(),
+  width: 300,
+  height: 300,
+)
+
+// 5. Particle Sphere
 AudioReactiveOrb.particle(
   style: ParticleOrbStyle.gemini(),
   width: 300,
   height: 300,
 )
 
-// 2. Raymarched Liquid Metaballs
+// 6. Raymarched Liquid Metaballs
 AudioReactiveOrb.liquid(
   style: LiquidOrbStyle.mercury(),
   width: 300,
   height: 300,
 )
 
-// 3. Spiral Galaxy Core
+// 7. Spiral Galaxy Core
 AudioReactiveOrb.galaxy(
   style: GalaxyOrbStyle.andromeda(),
   width: 300,
   height: 300,
 )
 
-// 4. Holographic Geodesic Wireframe
+// 8. Holographic Geodesic Wireframe
 AudioReactiveOrb.wireframe(
   style: WireframeOrbStyle.hologram(),
   width: 300,
   height: 300,
 )
 
-// 5. Radial Audio Spectrum Equalizer
+// 9. Radial Audio Spectrum Equalizer
 AudioReactiveOrb.spectrum(
   style: SpectrumOrbStyle.neonEqualizer(),
   width: 300,
@@ -150,6 +182,36 @@ AudioReactiveOrb.spectrum(
 Feed custom audio energy `[0.0 - 1.0]` (from a player, TTS, speech synthesizer, or animation):
 
 ```dart
+// Quantum Flare Orb
+FlareOrb(
+  audioEnergy: 0.65,
+  style: FlareOrbStyle.quantumBlue(),
+  width: 280,
+  height: 280,
+)
+
+// Apple Siri Glow
+SiriOrb(
+  audioEnergy: 0.65,
+  style: SiriOrbStyle.appleClassic(),
+  width: 280,
+  height: 280,
+)
+
+// 2.5D Wave Mesh Orb
+WaveMeshOrb(
+  audioEnergy: 0.65,
+  style: WaveMeshOrbStyle.oceanicBlue(),
+  width: 320,
+  height: 320,
+)
+
+// Constellation Orb
+ConstellationOrb(
+  energyListenable: myEnergyNotifier,
+  style: ConstellationOrbStyle.deepSpace(),
+)
+
 // Liquid Orb
 LiquidOrb(
   audioEnergy: 0.75,
@@ -203,6 +265,24 @@ controller.setSimulated(true, mode: SimulationMode.speech);
 ### 4. Specialized Style Presets
 
 Each widget has its own strongly-typed configuration model with tailored presets:
+
+#### Siri Glow Presets (`SiriOrbStyle`)
+- `SiriOrbStyle.appleClassic()` — Iconic Apple Intelligence / Siri chromatic fluid glow (Cyan, Magenta, Amber, Indigo)
+- `SiriOrbStyle.cosmicAurora()` — Boreal emerald and jade with electric blue and deep violet vortices
+- `SiriOrbStyle.electricPrism()` — Hyper-vibrant rainbow chromatic dispersion and neon laser flares
+- `SiriOrbStyle.sunsetGlow()` — Warm velvet wine with radiating sunset orange, rose magenta, and solar gold
+
+#### Wave Mesh Presets (`WaveMeshOrbStyle`)
+- `WaveMeshOrbStyle.oceanicBlue()` — Deep midnight sea with radiant sky azure waves and glowing bokeh orbs
+- `WaveMeshOrbStyle.cyberGrid()` — Synthwave twilight with electric magenta ridges and neon teal bokeh
+- `WaveMeshOrbStyle.auroraGreen()` — Deep boreal emerald with luminous mint ripples and jade horizon nodes
+- `WaveMeshOrbStyle.solarGold()` — Warm obsidian amber with radiant 24k gold wave surges and sunlit bokeh
+
+#### Constellation Presets (`ConstellationOrbStyle`)
+- `ConstellationOrbStyle.deepSpace()` — Midnight navy backdrop with celestial cyan nodes and star charts
+- `ConstellationOrbStyle.neuralSynapse()` — Deep purple cortex with electric magenta synaptic spikes
+- `ConstellationOrbStyle.matrixNodes()` — Terminal slate black with glowing emerald data packets
+- `ConstellationOrbStyle.quantumAmber()` — Warm bronze obsidian with radiant gold energy linkages
 
 #### Particle Presets (`ParticleOrbStyle` / `OrbStyle`)
 - `ParticleOrbStyle.gemini()` — Google Gemini Cyan & Electric Blue

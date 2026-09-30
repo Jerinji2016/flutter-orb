@@ -26,6 +26,8 @@ flutter:
     - shaders/galaxy_orb.frag
     - shaders/wireframe_orb.frag
     - shaders/audio_spectrum.frag
+    - shaders/siri_orb.frag
+    - shaders/flare_orb.frag
 
 false_secrets:
   - /example/lib/firebase_options.dart

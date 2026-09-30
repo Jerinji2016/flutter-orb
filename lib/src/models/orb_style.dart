@@ -1,6 +1,10 @@
 export 'base_orb_style.dart';
+export 'constellation_orb_style.dart';
+export 'flare_orb_style.dart';
 export 'galaxy_orb_style.dart';
 export 'liquid_orb_style.dart';
 export 'particle_orb_style.dart';
+export 'siri_orb_style.dart';
 export 'spectrum_orb_style.dart';
+export 'wave_mesh_orb_style.dart';
 export 'wireframe_orb_style.dart';

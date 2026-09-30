@@ -112,6 +112,26 @@ void main() {
       await tester.tap(settingsBtn);
       await tester.pump(const Duration(milliseconds: 600));
 
+      // --- 7. 2.5D WAVE MESH (Oceanic Blue) ---
+      await selectMode('Wave Mesh 2.5D');
+      await selectPreset('Oceanic Blue');
+      await binding.takeScreenshot('11_wave_mesh_oceanic');
+
+      // --- 8. 2D DYNAMIC CONSTELLATION (Neural Synapse) ---
+      await selectMode('Constellation 2D');
+      await selectPreset('Neural Synapse');
+      await binding.takeScreenshot('12_constellation_neural');
+
+      // --- 9. APPLE SIRI CHROMATIC GLOW (Apple Classic) ---
+      await selectMode('Siri Glow');
+      await selectPreset('Apple Classic');
+      await binding.takeScreenshot('13_siri_glow_apple');
+
+      // --- 10. QUANTUM FLARE 3D ORB (Quantum Blue) ---
+      await selectMode('Quantum Flare');
+      await selectPreset('Quantum Blue');
+      await binding.takeScreenshot('14_flare_quantum_blue');
+
       FlutterError.onError = originalOnError;
     });
   });

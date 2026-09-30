@@ -10,6 +10,8 @@ class OrbShaderLoader {
   static const String galaxyShaderPath = 'shaders/galaxy_orb.frag';
   static const String wireframeShaderPath = 'shaders/wireframe_orb.frag';
   static const String spectrumShaderPath = 'shaders/audio_spectrum.frag';
+  static const String siriShaderPath = 'shaders/siri_orb.frag';
+  static const String flareShaderPath = 'shaders/flare_orb.frag';
 
   /// Loads a fragment shader from the given path (or default particle shader).
   ///
@@ -58,7 +60,7 @@ class OrbShaderLoader {
     }
   }
 
-  /// Preloads all 5 built-in shaders asynchronously for instant, stutter-free switching.
+  /// Preloads all built-in shaders asynchronously for instant, stutter-free switching.
   static Future<void> preloadAll() async {
     await Future.wait([
       loadPath(particleShaderPath),
@@ -66,6 +68,8 @@ class OrbShaderLoader {
       loadPath(galaxyShaderPath),
       loadPath(wireframeShaderPath),
       loadPath(spectrumShaderPath),
+      loadPath(siriShaderPath),
+      loadPath(flareShaderPath),
     ]);
   }
 
