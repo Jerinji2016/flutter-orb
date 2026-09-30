@@ -20,8 +20,7 @@ enum SimulationMode {
 
 /// Controller responsible for audio capture, amplitude polling, decibel normalization,
 /// exponential smoothing (EMA), and synthetic audio simulation.
-class VoiceOrbController extends ChangeNotifier
-    implements ValueListenable<double> {
+class VoiceOrbController extends ChangeNotifier implements ValueListenable<double> {
   AudioRecorder? _audioRecorder;
   AudioRecorder get _recorder => _audioRecorder ??= AudioRecorder();
   StreamSubscription<Amplitude>? _amplitudeSub;
@@ -117,9 +116,7 @@ class VoiceOrbController extends ChangeNotifier
       );
 
       _amplitudeSub?.cancel();
-      _amplitudeSub = _recorder
-          .onAmplitudeChanged(pollingInterval)
-          .listen(_onAmplitudeData);
+      _amplitudeSub = _recorder.onAmplitudeChanged(pollingInterval).listen(_onAmplitudeData);
 
       _isListening = true;
       notifyListeners();
@@ -147,8 +144,7 @@ class VoiceOrbController extends ChangeNotifier
   }
 
   /// Toggles simulation mode on or off.
-  void setSimulated(bool enabled,
-      {SimulationMode mode = SimulationMode.speech}) {
+  void setSimulated(bool enabled, {SimulationMode mode = SimulationMode.speech}) {
     _isSimulated = enabled;
     _simulationMode = mode;
     if (enabled) {
@@ -178,14 +174,12 @@ class VoiceOrbController extends ChangeNotifier
   void tick(double dt) {
     if (_isSimulated && _isListening) {
       _simulatedTime += dt;
-      _targetEnergy =
-          _calculateSimulatedEnergy(_simulatedTime, _simulationMode);
+      _targetEnergy = _calculateSimulatedEnergy(_simulatedTime, _simulationMode);
       _currentDb = minDb + _targetEnergy * (maxDb - minDb);
     }
 
     // Exponential Moving Average (EMA)
-    _smoothedEnergy +=
-        (_targetEnergy - _smoothedEnergy) * smoothingFactor.clamp(0.01, 1.0);
+    _smoothedEnergy += (_targetEnergy - _smoothedEnergy) * smoothingFactor.clamp(0.01, 1.0);
 
     // Minor threshold cutoff for absolute silence
     if (_smoothedEnergy < 0.0001) {
@@ -201,8 +195,7 @@ class VoiceOrbController extends ChangeNotifier
   }
 
   /// Utility to normalize a decibel value into [0.0, 1.0] with exponential curve.
-  static double normalizeDb(
-      double db, double minDb, double maxDb, double power) {
+  static double normalizeDb(double db, double minDb, double maxDb, double power) {
     final clamped = db.clamp(minDb, maxDb);
     final normalized = (clamped - minDb) / (maxDb - minDb);
     return pow(normalized, power).toDouble().clamp(0.0, 1.0);

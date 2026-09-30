@@ -138,8 +138,7 @@ class ConstellationOrbStyle extends BaseOrbStyle {
       glowIntensity: glowIntensity ?? this.glowIntensity,
       speedMultiplier: speedMultiplier ?? this.speedMultiplier,
       particleCount: particleCount ?? this.particleCount,
-      maxConnectionDistance:
-          maxConnectionDistance ?? this.maxConnectionDistance,
+      maxConnectionDistance: maxConnectionDistance ?? this.maxConnectionDistance,
       particleSpeed: particleSpeed ?? this.particleSpeed,
       particleRadius: particleRadius ?? this.particleRadius,
       lineThickness: lineThickness ?? this.lineThickness,

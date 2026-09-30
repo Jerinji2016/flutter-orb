@@ -57,8 +57,7 @@ class AudioReactiveOrb extends StatefulWidget {
   final double? height;
 
   /// Custom builder when microphone permission is denied and fallback is disabled.
-  final Widget Function(BuildContext context, VoidCallback requestPermission)?
-      permissionDeniedBuilder;
+  final Widget Function(BuildContext context, VoidCallback requestPermission)? permissionDeniedBuilder;
 
   /// Loading widget while the shader or mic initializes.
   final WidgetBuilder? loadingBuilder;
@@ -76,7 +75,7 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.particle;
+  }) : _type = _OrbVisualizerType.particle;
 
   /// 3D wave particle sphere audio-reactive visualizer.
   const AudioReactiveOrb.particle({
@@ -89,7 +88,7 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.particle;
+  }) : _type = _OrbVisualizerType.particle;
 
   /// Raymarched SDF metaballs and gooey fluid blob audio-reactive visualizer.
   const AudioReactiveOrb.liquid({
@@ -102,7 +101,7 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.liquid;
+  }) : _type = _OrbVisualizerType.liquid;
 
   /// Spiral disk particle system and galactic core audio-reactive visualizer.
   const AudioReactiveOrb.galaxy({
@@ -115,7 +114,7 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.galaxy;
+  }) : _type = _OrbVisualizerType.galaxy;
 
   /// Holographic rotating geodesic grid wireframe audio-reactive visualizer.
   const AudioReactiveOrb.wireframe({
@@ -128,7 +127,7 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.wireframe;
+  }) : _type = _OrbVisualizerType.wireframe;
 
   /// Radial frequency bars and circular waveform ribbons audio-reactive visualizer.
   const AudioReactiveOrb.spectrum({
@@ -141,7 +140,7 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.spectrum;
+  }) : _type = _OrbVisualizerType.spectrum;
 
   /// 2.5D perspective undulating wave mesh with focal bokeh blur audio-reactive visualizer.
   const AudioReactiveOrb.waveMesh({
@@ -154,7 +153,7 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.waveMesh;
+  }) : _type = _OrbVisualizerType.waveMesh;
 
   /// 2D dynamic proximity-connecting constellation network mesh audio-reactive visualizer.
   const AudioReactiveOrb.constellation({
@@ -167,7 +166,7 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.constellation;
+  }) : _type = _OrbVisualizerType.constellation;
 
   /// Apple Siri iridescent chromatic fluid glow audio-reactive visualizer.
   const AudioReactiveOrb.siri({
@@ -180,7 +179,7 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.siri;
+  }) : _type = _OrbVisualizerType.siri;
 
   /// Quantum Flare 3D holographic sphere with sweeping orbital plasma ring audio-reactive visualizer.
   const AudioReactiveOrb.flare({
@@ -193,14 +192,13 @@ class AudioReactiveOrb extends StatefulWidget {
     this.height,
     this.permissionDeniedBuilder,
     this.loadingBuilder,
-  })  : _type = _OrbVisualizerType.flare;
+  }) : _type = _OrbVisualizerType.flare;
 
   @override
   State<AudioReactiveOrb> createState() => _AudioReactiveOrbState();
 }
 
-class _AudioReactiveOrbState extends State<AudioReactiveOrb>
-    with SingleTickerProviderStateMixin {
+class _AudioReactiveOrbState extends State<AudioReactiveOrb> with SingleTickerProviderStateMixin {
   late VoiceOrbController _controller;
   bool _isInternalController = false;
   late final Ticker _ticker;
@@ -261,11 +259,8 @@ class _AudioReactiveOrbState extends State<AudioReactiveOrb>
     return ListenableBuilder(
       listenable: _controller,
       builder: (context, _) {
-        if (!_controller.hasPermission &&
-            !_controller.isSimulated &&
-            widget.permissionDeniedBuilder != null) {
-          return widget.permissionDeniedBuilder!(
-              context, () => _controller.start());
+        if (!_controller.hasPermission && !_controller.isSimulated && widget.permissionDeniedBuilder != null) {
+          return widget.permissionDeniedBuilder!(context, () => _controller.start());
         }
 
         return _buildVisualizer();

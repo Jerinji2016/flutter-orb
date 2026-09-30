@@ -35,8 +35,7 @@ class SiriOrb extends StatelessWidget {
   final WidgetBuilder? loadingBuilder;
 
   /// Widget displayed if shader loading fails.
-  final Widget Function(
-      BuildContext context, Object error, StackTrace? stackTrace)? errorBuilder;
+  final Widget Function(BuildContext context, Object error, StackTrace? stackTrace)? errorBuilder;
 
   const SiriOrb({
     super.key,

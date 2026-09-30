@@ -63,9 +63,7 @@ class WaveMeshPainter extends CustomPainter {
 
     // --- 2. Calculate 3D Wave Displacements and Perspective Projections ---
     final double freq = style.waveFrequency;
-    final double amp = style.waveAmplitude *
-        (size.height * 0.24) *
-        (1.0 + audio * 2.2 * style.glowIntensity);
+    final double amp = style.waveAmplitude * (size.height * 0.24) * (1.0 + audio * 2.2 * style.glowIntensity);
     final double pitch = style.perspectivePitch;
     final double cosPitch = cos(pitch);
     final double sinPitch = sin(pitch);
@@ -82,16 +80,12 @@ class WaveMeshPainter extends CustomPainter {
         final int index = (r * cols + c) * 4;
 
         // Compound undulating wave harmonics
-        final double w1 = sin(u * 2.6 * freq + t * 1.5) *
-            cos(v * 2.2 * freq - t * 1.1);
+        final double w1 = sin(u * 2.6 * freq + t * 1.5) * cos(v * 2.2 * freq - t * 1.1);
         final double w2 = sin((u * 1.8 + v * 2.4) * freq - t * 1.7) * 0.55;
-        final double w3 = cos(u * 4.2 * freq - t * 2.1) *
-            sin(v * 3.6 * freq + t * 1.3) *
-            0.32;
+        final double w3 = cos(u * 4.2 * freq - t * 2.1) * sin(v * 3.6 * freq + t * 1.3) * 0.32;
 
         // Lateral mountain ridge crests at the flanks (matching reference aesthetic)
-        final double flankElevation =
-            (u * u) * 0.45 * sin(v * 3.2 * freq + t * 0.9);
+        final double flankElevation = (u * u) * 0.45 * sin(v * 3.2 * freq + t * 0.9);
         final double waveVal = (w1 + w2 + w3 + flankElevation);
         final double yWave = -waveVal * amp;
 
@@ -123,8 +117,7 @@ class WaveMeshPainter extends CustomPainter {
         final double v = r / (rows - 1);
         if (v < style.focalDistance) continue; // Only far-field bokeh
 
-        final double focalDelta =
-            (v - style.focalDistance) / (1.0 - style.focalDistance);
+        final double focalDelta = (v - style.focalDistance) / (1.0 - style.focalDistance);
         if (focalDelta <= 0.1) continue;
 
         for (int c = 0; c < cols; c += 2) {
@@ -135,13 +128,9 @@ class WaveMeshPainter extends CustomPainter {
 
           // Render bokeh discs on wave crests and elevated terrain
           if (waveVal > 0.12 || (v > 0.7 && c % 3 == 0)) {
-            final double bokehRadius = focalDelta *
-                (16.0 * style.depthOfField) *
-                (1.0 + waveVal * 0.4 + audio * 0.3);
+            final double bokehRadius = focalDelta * (16.0 * style.depthOfField) * (1.0 + waveVal * 0.4 + audio * 0.3);
 
-            final double alpha = (focalDelta * 0.35 + waveVal * 0.25)
-                .clamp(0.04, 0.48) *
-                style.glowIntensity;
+            final double alpha = (focalDelta * 0.35 + waveVal * 0.25).clamp(0.04, 0.48) * style.glowIntensity;
 
             final bokehPaint = Paint()
               ..shader = RadialGradient(
@@ -176,8 +165,7 @@ class WaveMeshPainter extends CustomPainter {
     for (int r = 0; r < rows; r++) {
       final double v = r / (rows - 1);
       final double depthFade = (1.0 - v * 0.55).clamp(0.2, 1.0);
-      final double alpha = (style.lineOpacity * depthFade * (0.75 + audio * 0.35))
-          .clamp(0.05, 1.0);
+      final double alpha = (style.lineOpacity * depthFade * (0.75 + audio * 0.35)).clamp(0.05, 1.0);
 
       linePaint.color = baseLineColor.withValues(alpha: alpha);
       linePaint.strokeWidth = max(
@@ -233,8 +221,7 @@ class WaveMeshPainter extends CustomPainter {
     for (int r = 0; r < rows; r++) {
       final double v = r / (rows - 1);
       final double depthScale = (1.25 - v * 0.75).clamp(0.35, 1.25);
-      final double nodeAlpha = ((1.0 - v * 0.45) * (0.8 + audio * 0.2))
-          .clamp(0.2, 1.0);
+      final double nodeAlpha = ((1.0 - v * 0.45) * (0.8 + audio * 0.2)).clamp(0.2, 1.0);
 
       nodePaint.color = nodeColor.withValues(alpha: nodeAlpha);
 
@@ -268,8 +255,6 @@ class WaveMeshPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant WaveMeshPainter oldDelegate) {
-    return oldDelegate.time != time ||
-        oldDelegate.audioEnergy != audioEnergy ||
-        oldDelegate.style != style;
+    return oldDelegate.time != time || oldDelegate.audioEnergy != audioEnergy || oldDelegate.style != style;
   }
 }

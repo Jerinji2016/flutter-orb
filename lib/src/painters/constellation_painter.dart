@@ -135,13 +135,11 @@ class ConstellationPainter extends CustomPainter {
       final double baseY = cy + sin(seed.baseAngle) * baseDist;
 
       // Harmonic Lissajous wandering offset
-      final double driftX = (sin(seed.freqX1 * t + seed.phaseX1) +
-              cos(seed.freqX2 * t * 1.3 + seed.phaseX2) * 0.6) *
+      final double driftX = (sin(seed.freqX1 * t + seed.phaseX1) + cos(seed.freqX2 * t * 1.3 + seed.phaseX2) * 0.6) *
           (fieldRadius * seed.ampX) *
           (1.0 + audio * 0.4 * style.audioImpulseForce);
 
-      final double driftY = (cos(seed.freqY1 * t + seed.phaseY1) +
-              sin(seed.freqY2 * t * 1.2 + seed.phaseY2) * 0.6) *
+      final double driftY = (cos(seed.freqY1 * t + seed.phaseY1) + sin(seed.freqY2 * t * 1.2 + seed.phaseY2) * 0.6) *
           (fieldRadius * seed.ampY) *
           (1.0 + audio * 0.4 * style.audioImpulseForce);
 
@@ -154,9 +152,7 @@ class ConstellationPainter extends CustomPainter {
 
     // --- 3. Compute Proximity Connections with Quadratic Distance Fadeout ---
     final double scaleFactor = (maxDimension / 300.0).clamp(0.5, 2.5);
-    final double maxDist = style.maxConnectionDistance *
-        scaleFactor *
-        (1.0 + audio * 0.35 * style.audioImpulseForce);
+    final double maxDist = style.maxConnectionDistance * scaleFactor * (1.0 + audio * 0.35 * style.audioImpulseForce);
     final double maxDistSq = maxDist * maxDist;
 
     final Color lineColor = Color.lerp(
@@ -185,8 +181,8 @@ class ConstellationPainter extends CustomPainter {
           final double dist = sqrt(distSq);
           final double proximity = (1.0 - dist / maxDist);
           // Smooth quadratic falloff for natural connection fading
-          final double alpha = (proximity * proximity * 0.85 * (0.65 + audio * 0.35) * style.lineGlowIntensity)
-              .clamp(0.0, 1.0);
+          final double alpha =
+              (proximity * proximity * 0.85 * (0.65 + audio * 0.35) * style.lineGlowIntensity).clamp(0.0, 1.0);
 
           linePaint.color = lineColor.withValues(alpha: alpha);
           linePaint.strokeWidth = max(
@@ -219,9 +215,7 @@ class ConstellationPainter extends CustomPainter {
       final double py = _coordBuffer![i * 2 + 1];
       final seed = _cachedSeeds![i];
 
-      final double nodeRadius = style.particleRadius *
-          seed.sizeScale *
-          (1.0 + audio * 0.45 * style.audioImpulseForce);
+      final double nodeRadius = style.particleRadius * seed.sizeScale * (1.0 + audio * 0.45 * style.audioImpulseForce);
 
       // Outer soft aura halo
       auraPaint.color = style.activeColor.withValues(
@@ -246,7 +240,8 @@ class ConstellationPainter extends CustomPainter {
         if (audio > 0.6 && i % 8 == 0) {
           final rippleRadius = nodeRadius * (2.5 + sin(t * 3.0 + i) * 1.5);
           final ringPaint = Paint()
-            ..color = style.activeColor.withValues(alpha: (0.35 * (1.0 - rippleRadius / (nodeRadius * 4.5))).clamp(0.0, 0.4))
+            ..color =
+                style.activeColor.withValues(alpha: (0.35 * (1.0 - rippleRadius / (nodeRadius * 4.5))).clamp(0.0, 0.4))
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.0
             ..isAntiAlias = true;
@@ -258,8 +253,6 @@ class ConstellationPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant ConstellationPainter oldDelegate) {
-    return oldDelegate.time != time ||
-        oldDelegate.audioEnergy != audioEnergy ||
-        oldDelegate.style != style;
+    return oldDelegate.time != time || oldDelegate.audioEnergy != audioEnergy || oldDelegate.style != style;
   }
 }

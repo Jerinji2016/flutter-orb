@@ -36,8 +36,7 @@ class ConstellationOrb extends StatefulWidget {
   State<ConstellationOrb> createState() => _ConstellationOrbState();
 }
 
-class _ConstellationOrbState extends State<ConstellationOrb>
-    with SingleTickerProviderStateMixin {
+class _ConstellationOrbState extends State<ConstellationOrb> with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
   double _elapsedSeconds = 0.0;
   Duration _lastElapsed = Duration.zero;

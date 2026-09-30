@@ -36,8 +36,7 @@ class ShaderOrb<T extends BaseOrbStyle> extends StatefulWidget {
   final WidgetBuilder? loadingBuilder;
 
   /// Builder displayed if fragment shader compilation fails.
-  final Widget Function(
-      BuildContext context, Object error, StackTrace? stackTrace)? errorBuilder;
+  final Widget Function(BuildContext context, Object error, StackTrace? stackTrace)? errorBuilder;
 
   /// Factory function that creates the tailored [CustomPainter] for this shader and style.
   final CustomPainter Function(
@@ -66,8 +65,7 @@ class ShaderOrb<T extends BaseOrbStyle> extends StatefulWidget {
   State<ShaderOrb<T>> createState() => _ShaderOrbState<T>();
 }
 
-class _ShaderOrbState<T extends BaseOrbStyle> extends State<ShaderOrb<T>>
-    with SingleTickerProviderStateMixin {
+class _ShaderOrbState<T extends BaseOrbStyle> extends State<ShaderOrb<T>> with SingleTickerProviderStateMixin {
   FragmentShader? _shader;
   Object? _loadError;
   StackTrace? _loadStackTrace;
@@ -119,8 +117,7 @@ class _ShaderOrbState<T extends BaseOrbStyle> extends State<ShaderOrb<T>>
     super.didUpdateWidget(oldWidget);
     if (widget.shader != null && widget.shader != _shader) {
       _shader = widget.shader;
-    } else if (widget.customShaderAsset != oldWidget.customShaderAsset ||
-        widget.shaderAsset != oldWidget.shaderAsset) {
+    } else if (widget.customShaderAsset != oldWidget.customShaderAsset || widget.shaderAsset != oldWidget.shaderAsset) {
       _initShader();
     }
   }

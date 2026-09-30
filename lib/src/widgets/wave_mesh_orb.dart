@@ -36,8 +36,7 @@ class WaveMeshOrb extends StatefulWidget {
   State<WaveMeshOrb> createState() => _WaveMeshOrbState();
 }
 
-class _WaveMeshOrbState extends State<WaveMeshOrb>
-    with SingleTickerProviderStateMixin {
+class _WaveMeshOrbState extends State<WaveMeshOrb> with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
   double _elapsedSeconds = 0.0;
   Duration _lastElapsed = Duration.zero;

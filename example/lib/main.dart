@@ -554,8 +554,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
                 ),
 
                 // Widescreen Right Side Drawer Panel
-                if (isWideScreen && _showSettings)
-                  _buildWideSettingsDrawer(),
+                if (isWideScreen && _showSettings) _buildWideSettingsDrawer(),
               ],
             ),
           ),
@@ -686,8 +685,7 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
       decoration: BoxDecoration(
         color: _currentActiveColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: _currentActiveColor.withValues(alpha: 0.4)),
+        border: Border.all(color: _currentActiveColor.withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1099,7 +1097,8 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
             children: [
               Text(
                 '${_selectedMode.title} Tuning',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 icon: const Icon(Icons.close, size: 20),
@@ -1112,7 +1111,10 @@ class _VoiceOrbHomePageState extends State<VoiceOrbHomePage>
           const Divider(height: 16),
           const Text(
             'Audio Sensitivity',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white70),
+            style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Colors.white70),
           ),
           _buildSlider(
             label: 'Decibel Floor (minDb)',

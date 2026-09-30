@@ -263,8 +263,7 @@ class FastNoise3D {
   ];
 
   static final List<int> _perm = List<int>.generate(512, (i) => _p[i & 255]);
-  static final List<int> _permMod12 =
-      List<int>.generate(512, (i) => _p[i & 255] % 12);
+  static final List<int> _permMod12 = List<int>.generate(512, (i) => _p[i & 255] % 12);
 
   static final List<List<double>> _grad3 = [
     [1, 1, 0],

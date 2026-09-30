@@ -62,26 +62,19 @@ void main() {
         if (f.existsSync()) {
           final fontBytes = f.readAsBytesSync();
           for (final fontName in ['Roboto', 'Arial', 'sans-serif']) {
-            final loader = FontLoader(fontName)
-              ..addFont(Future.value(ByteData.view(fontBytes.buffer)));
+            final loader = FontLoader(fontName)..addFont(Future.value(ByteData.view(fontBytes.buffer)));
             await loader.load();
           }
           break;
         }
       }
 
-      liquidProgram =
-          await OrbShaderLoader.loadPath(OrbShaderLoader.liquidShaderPath);
-      galaxyProgram =
-          await OrbShaderLoader.loadPath(OrbShaderLoader.galaxyShaderPath);
-      wireframeProgram =
-          await OrbShaderLoader.loadPath(OrbShaderLoader.wireframeShaderPath);
-      spectrumProgram =
-          await OrbShaderLoader.loadPath(OrbShaderLoader.spectrumShaderPath);
-      siriProgram =
-          await OrbShaderLoader.loadPath(OrbShaderLoader.siriShaderPath);
-      flareProgram =
-          await OrbShaderLoader.loadPath(OrbShaderLoader.flareShaderPath);
+      liquidProgram = await OrbShaderLoader.loadPath(OrbShaderLoader.liquidShaderPath);
+      galaxyProgram = await OrbShaderLoader.loadPath(OrbShaderLoader.galaxyShaderPath);
+      wireframeProgram = await OrbShaderLoader.loadPath(OrbShaderLoader.wireframeShaderPath);
+      spectrumProgram = await OrbShaderLoader.loadPath(OrbShaderLoader.spectrumShaderPath);
+      siriProgram = await OrbShaderLoader.loadPath(OrbShaderLoader.siriShaderPath);
+      flareProgram = await OrbShaderLoader.loadPath(OrbShaderLoader.flareShaderPath);
     });
 
     test('01_particle_gemini', () async {

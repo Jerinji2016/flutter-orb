@@ -20,8 +20,7 @@ void main() {
       expect(VoiceOrbController.normalizeDb(0.0, minDb, maxDb, power), 1.0);
 
       // Midpoint: (-55 + -5) / 2 = -30.0
-      expect(VoiceOrbController.normalizeDb(-30.0, minDb, maxDb, power),
-          closeTo(0.5, 0.001));
+      expect(VoiceOrbController.normalizeDb(-30.0, minDb, maxDb, power), closeTo(0.5, 0.001));
     });
 
     test('EMA smoothing smoothly interpolates towards target energy', () {
@@ -445,8 +444,7 @@ void main() {
       expect(find.byType(FlareOrb), findsOneWidget);
     });
 
-    testWidgets('Instantiates AudioReactiveOrb constructors without crashing',
-        (tester) async {
+    testWidgets('Instantiates AudioReactiveOrb constructors without crashing', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
